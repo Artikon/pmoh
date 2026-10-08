@@ -142,6 +142,19 @@ main{max-width:1360px;margin:-34px auto 0;padding:0 32px 64px;position:relative;
 .c4{background:var(--seq-4)!important;color:#fff!important}
 @media (prefers-color-scheme: dark){.c1,.c2{color:#fff!important}.c4{color:#0d366b!important}}
 
+.matrix{display:grid;grid-template-columns:92px repeat(5,minmax(0,1fr));gap:4px}
+.matrix .ax{color:var(--ink-2);font-size:11px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;text-align:right;line-height:1.2}
+.matrix .axb{justify-content:center;text-align:center;padding:4px 2px 0;align-items:flex-start}
+.matrix .ttl{grid-column:2/-1;text-align:center;font-size:11px;font-weight:650;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-top:4px}
+.matrix .ttl.l{grid-column:1/-1;text-align:left;padding:0 0 4px}
+.mc{aspect-ratio:1.35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.z-Low{background:color-mix(in srgb,var(--good) 12%,transparent)}.z-Medium{background:color-mix(in srgb,var(--warning) 16%,transparent)}.z-High{background:color-mix(in srgb,var(--serious) 18%,transparent)}.z-Extreme{background:color-mix(in srgb,var(--critical) 16%,transparent)}
+.mc.on.z-Low{background:color-mix(in srgb,var(--good) 45%,transparent)}.mc.on.z-Medium{background:color-mix(in srgb,var(--warning) 60%,transparent)}.mc.on.z-High{background:color-mix(in srgb,var(--serious) 65%,transparent)}.mc.on.z-Extreme{background:var(--critical);color:#fff}
+.rate{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.rate.Extreme{background:var(--critical);color:#fff}.rate.High{background:color-mix(in srgb,var(--serious) 28%,transparent);color:#9a3f15}.rate.Medium{background:color-mix(in srgb,var(--warning) 30%,transparent);color:#6b4b00}.rate.Low{background:color-mix(in srgb,var(--good) 20%,transparent);color:#0b5e0b}
+@media (prefers-color-scheme: dark){.rate.High{color:var(--serious)}.rate.Medium{color:var(--warning)}.rate.Low{color:var(--good)}}
+.list.two{display:grid;grid-template-columns:1fr 1fr;column-gap:32px}
+@media (max-width:900px){.list.two{grid-template-columns:1fr}}
 .minis{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .mini{flex:1;min-width:110px;background:var(--surface-2);border-radius:10px;padding:10px 12px}
 .mini b{display:block;font-size:22px;letter-spacing:-.01em}
@@ -216,7 +229,7 @@ footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);fon
     <div>
       <div class="eyebrow">Portfolio view</div>
       <h1>Portfolio Dashboard</h1>
-      <p>Lifecycle, health, financials, RAIDD and resourcing, drawn from the project, RAIDD and resourcing registers.</p>
+      <p>Lifecycle, health, financials, risks, issues and resourcing, drawn from the project, risk and issue, and resourcing registers.</p>
     </div>
     <div class="hero-meta">
       <span class="pill" id="repDate">Reporting date —</span>
@@ -234,7 +247,7 @@ footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);fon
     <div class="section-title"><h3>Key updates</h3></div>
     <div class="card span-12">
       <h2>Key updates for executive review</h2>
-      <div class="sub">Critical and serious matters only, summarised from the latest project, RAIDD and resourcing data.</div>
+      <div class="sub">Critical and serious matters only, summarised from the latest project, risk and issue, and resourcing data.</div>
       <ul class="updates" id="watch"></ul>
     </div>
 
@@ -280,17 +293,23 @@ footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);fon
       </div>
     </div>
 
-    <div class="section-title"><h3>RAIDD</h3></div>
-    <div class="card span-7">
-      <h2>Open RAIDD items by project</h2>
-      <div class="sub">Closed items are excluded. Darker cells mean more open items.</div>
-      <div class="minis" id="raiddMinis"></div>
-      <div class="heat" id="heat"></div>
-    </div>
+    <div class="section-title"><h3>Risks &amp; issues</h3></div>
     <div class="card span-5">
+      <h2>Risk matrix</h2>
+      <div class="sub">Open risks plotted by likelihood and consequence. Cell colour shows the rating zone.</div>
+      <div class="matrix" id="matrix"></div>
+      <div class="legend"><span><span class="rate Low">Low</span></span><span><span class="rate Medium">Medium</span></span><span><span class="rate High">High</span></span><span><span class="rate Extreme">Extreme</span></span></div>
+    </div>
+    <div class="card span-7">
+      <h2>Risks &amp; issues by project</h2>
+      <div class="sub">Open items only, ordered by exposure. ▲ counts items whose trend is increasing.</div>
+      <div class="minis" id="raiddMinis"></div>
+      <div class="tablewrap"><table id="riTable"></table></div>
+    </div>
+    <div class="card span-12">
       <h2>Coming due</h2>
-      <div class="sub">Open items due in the next 60 days.</div>
-      <div class="list" id="due"></div>
+      <div class="sub">Open risks and issues reaching their target date in the next 60 days.</div>
+      <div class="list two" id="due"></div>
     </div>
 
     <div class="section-title"><h3>Resourcing</h3></div>
@@ -302,7 +321,7 @@ footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);fon
     </div>
     <div class="card span-5">
       <h2>Role coverage</h2>
-      <div class="sub">Clinical PM and IT PM assignment for every project that isn't complete.</div>
+      <div class="sub">PM assignment by role for every project that isn't complete.</div>
       <div class="tablewrap"><table id="cover"></table></div>
     </div>
 
@@ -322,7 +341,7 @@ footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);fon
     </div>
   </div>
 </main>
-<footer>Example data for testing the merge. Use “Load updated CSVs” to swap in new versions of projects.csv, raidd_log.csv or resourcing.csv; each file is recognised by its columns.</footer>
+<footer>Example data for testing the merge. Use “Load updated CSVs” to swap in new versions of projects.csv, risks_issues.csv or resourcing.csv; each file is recognised by its columns.</footer>
 
 <div id="tip"></div>
 <div id="toast"></div>
@@ -347,48 +366,41 @@ PRJ-015,Patient Portal Self-Booking,Pipeline,1. Schematic Design (SD),Digital Fr
 PRJ-016,Clinical Coding Automation,Pipeline,2. Detailed Design (DD),Health Information,Sandra Bell (Health Information Manager),Low,2027-01-11,2027-09-24,,560000,9000,56000,0,0,Green,Vendor demos scheduled,2026-10-06
 </script>
 <script type="text/csv" id="csv-raidd">
-raidd_id,project_id,type,title,description,owner,raised_date,due_date,status,severity,likelihood,impact_area,next_action
-RD-001,PRJ-001,Risk,Vendor patch slippage,Vendor v12.2 patch may slip past build window,Daniel Kim,2026-07-14,2026-11-15,Open,High,Likely,Schedule,Weekly vendor escalation call
-RD-002,PRJ-001,Issue,Interface regression defects,14 HL7 interface defects found in SIT cycle 2,Daniel Kim,2026-09-08,2026-10-24,In Progress,High,,Quality,Defect triage twice weekly
-RD-003,PRJ-001,Dependency,Data centre network upgrade,Go-live depends on core network upgrade completing,Infrastructure Team,2026-05-20,2027-01-15,Open,Medium,,Schedule,Confirm network cutover date
-RD-004,PRJ-001,Decision,Big-bang vs phased go-live,Agreed phased go-live by campus,Dr Helen Marsh,2026-04-02,2026-04-30,Closed,Medium,,Scope,None - decision logged
-RD-005,PRJ-001,Assumption,Super-user availability,Assumes 40 super-users released for 3 days training,Sarah Nguyen,2026-06-11,2026-12-01,Open,Medium,,Resourcing,Confirm rosters with nursing units
-RD-006,PRJ-002,Risk,Pharmacist workload during rollout,Pharmacy may lack capacity to verify orders during ward go-lives,Sarah Nguyen,2026-03-18,2026-12-18,Open,Medium,Possible,Clinical Safety,Backfill locum pharmacists
-RD-007,PRJ-002,Issue,Device shortage on wards 9-10,Insufficient workstations-on-wheels for ward 9 and 10,Emma Walsh,2026-09-21,2026-10-30,In Progress,Medium,,Delivery,Expedite device order
-RD-008,PRJ-002,Decision,Paper chart retirement,Paper medication charts retired 2 weeks post ward go-live,Karen Lowe,2026-02-10,2026-02-24,Closed,Low,,Clinical Safety,None - decision logged
-RD-009,PRJ-002,Assumption,Formulary stable,Assumes no major formulary changes before December,James O'Brien,2026-01-20,2026-12-18,Open,Low,,Scope,Monitor drug committee agenda
-RD-010,PRJ-003,Issue,Privacy impact assessment overdue,PIA not signed off - blocking video consult go-live,Raj Patel,2026-08-12,2026-10-16,Open,High,,Compliance,Escalate to Privacy Officer
-RD-011,PRJ-003,Risk,Clinician uptake,Specialists may not adopt platform without workflow changes,Priya Raman,2026-04-14,2026-11-30,Open,Medium,Likely,Benefits,Run clinic champion program
-RD-012,PRJ-003,Dependency,Identity provider integration,Patient login depends on statewide identity service,Raj Patel,2026-03-02,2026-11-02,In Progress,High,,Schedule,Confirm API access date
-RD-013,PRJ-003,Risk,Budget overrun,Additional licensing may push spend beyond approved budget,Raj Patel,2026-09-15,2026-11-30,Open,Medium,Possible,Cost,Draft variation request
-RD-014,PRJ-004,Issue,Migration throughput,Image migration running at 60% of planned rate,Lucy Chen,2026-08-25,2026-11-07,In Progress,High,,Schedule,Add second migration node
-RD-015,PRJ-004,Risk,Radiologist downtime tolerance,Cutover window may exceed acceptable reporting downtime,Tom Fletcher,2026-06-03,2026-12-15,Open,High,Possible,Clinical Safety,Agree downtime procedures
-RD-016,PRJ-004,Dependency,Cloud tenancy approval,Requires security sign-off on cloud tenancy,Cyber Security,2026-02-17,2026-07-31,Closed,High,,Compliance,None - approved 2026-07-28
-RD-017,PRJ-004,Decision,Retain on-prem cache,Retain 90-day on-prem image cache for resilience,Dr Anil Shah,2026-05-06,2026-05-20,Closed,Medium,,Scope,None - decision logged
-RD-018,PRJ-005,Risk,Alert fatigue,High false-positive rate may cause clinicians to ignore alerts,Sarah Nguyen,2026-06-22,2027-02-01,Open,High,Likely,Clinical Safety,Tune thresholds with ICU data
-RD-019,PRJ-005,Assumption,Vital signs data complete,Assumes obs captured electronically within 15 mins,Sarah Nguyen,2026-05-25,2026-12-01,Open,Medium,,Data Quality,Run obs timeliness audit
-RD-020,PRJ-005,Dependency,EMR v12 upgrade,Alert engine requires EMR v12 rules module,Mark Davies,2026-05-25,2027-03-31,Open,High,,Schedule,Track PRJ-001 milestones
-RD-021,PRJ-006,Issue,Low surgeon engagement,Only 4 of 11 surgical units attended design sessions,Priya Raman,2026-08-04,2026-10-31,In Progress,Medium,,Benefits,Director of Surgery to mandate attendance
-RD-022,PRJ-006,Risk,Integration with anaesthetics system,Anaesthetics system API is undocumented,Raj Patel,2026-05-12,2026-12-04,Open,Medium,Possible,Technical,Request vendor API spec
-RD-023,PRJ-006,Assumption,Theatre list structure unchanged,Assumes current session template retained,Priya Raman,2026-04-01,2027-02-26,Open,Low,,Scope,Confirm with perioperative committee
-RD-024,PRJ-007,Issue,Procurement on hold,Tender evaluation paused by procurement review,Emma Walsh,2026-08-18,2026-11-30,Open,High,,Schedule,Await procurement committee decision
-RD-025,PRJ-007,Risk,Current system end of support,Existing rostering system unsupported after June 2027,Tom Fletcher,2026-03-09,2027-06-30,Open,High,Likely,Operational,Negotiate extended support
-RD-026,PRJ-008,Decision,Pause pilot,Pilot paused until FY28 funding confirmed,Michael Grant,2026-08-14,2026-08-20,Closed,Medium,,Cost,None - decision logged
-RD-027,PRJ-008,Assumption,Device vendor holds pricing,Assumes quoted device pricing held until mid 2027,James O'Brien,2026-04-20,2027-06-30,Open,Low,,Cost,Request written price hold
-RD-028,PRJ-009,Dependency,Interface engine capacity,Build resumes once interface team released from PACS,Integration Team,2026-09-01,2027-01-29,Open,High,,Resourcing,Revisit after PACS cutover
-RD-029,PRJ-009,Risk,GP referral templates change,Statewide referral template update may require rework,Priya Raman,2026-07-07,2026-12-11,Open,Medium,Possible,Scope,Monitor statewide release notes
-RD-030,PRJ-010,Issue,Duplicate result notifications,Some clinicians received duplicate result alerts post go-live,Daniel Kim,2026-01-12,2026-02-06,Closed,Medium,,Quality,None - fixed in release 1.3
-RD-031,PRJ-010,Decision,Accept overspend,Steering committee accepted 4% overspend,Dr Anil Shah,2026-01-28,2026-02-04,Closed,Low,,Cost,None - decision logged
-RD-032,PRJ-011,Risk,GP practice software compatibility,Some GP systems may not render new summary format,Lucy Chen,2025-04-15,2026-05-30,Closed,Medium,Unlikely,Technical,None - resolved in testing
-RD-033,PRJ-012,Issue,Real-time feed latency,Bed status feed delayed up to 20 minutes,Raj Patel,2026-03-03,2026-05-15,Closed,High,,Quality,None - resolved via ADT feed change
-RD-034,PRJ-012,Decision,Extend go-live by one month,Go-live moved to May to fix latency,Michael Grant,2026-04-08,2026-04-15,Closed,Medium,,Schedule,None - decision logged
-RD-035,PRJ-013,Assumption,Pharmacist-led model,Assumes pharmacists own reconciliation at admission,James O'Brien,2026-09-10,2026-12-15,Open,Medium,,Scope,Validate in business case
-RD-036,PRJ-013,Dependency,ePrescribing complete,Requires PRJ-002 rollout complete across all wards,Emma Walsh,2026-09-10,2026-12-18,Open,High,,Schedule,Track PRJ-002 ward schedule
-RD-037,PRJ-014,Risk,Data sharing with public health,Data sharing agreement may take 6+ months,Sarah Nguyen,2026-09-14,2027-03-31,Open,Medium,Likely,Compliance,Start legal engagement early
-RD-038,PRJ-015,Issue,No delivery resources assigned,No Clinical PM or IT PM available to start planning,PMO,2026-09-12,2026-11-30,Open,High,,Resourcing,Raise at portfolio prioritisation forum
-RD-039,PRJ-015,Risk,Booking system integration,Outpatient booking system may not support external booking API,PMO,2026-09-12,2027-03-01,Open,Medium,Possible,Technical,Request vendor roadmap
-RD-040,PRJ-016,Assumption,Coding accuracy threshold,Assumes 95% auto-code accuracy is acceptable to auditors,Tom Fletcher,2026-09-28,2026-12-11,Open,Medium,,Compliance,Confirm with clinical coding audit lead
-RD-041,PRJ-016,Decision,Shortlist two vendors,Two vendors shortlisted for proof of concept,Sandra Bell,2026-10-01,2026-10-06,Closed,Low,,Scope,None - decision logged
+item_id,project_id,type,title,description,category,owner,raised_date,target_date,status,likelihood,consequence,risk_score,rating,trend,response
+RI-001,PRJ-001,Risk,Vendor patch slippage,Vendor v12.2 patch may slip past the build window,Schedule,Daniel Kim,2026-07-14,2026-11-15,Open,Likely,Major,16,High,Increasing,Weekly vendor escalation call
+RI-002,PRJ-001,Issue,Interface regression defects,14 HL7 interface defects found in SIT cycle 2,Quality,Daniel Kim,2026-09-08,2026-10-24,In Progress,,Major,,High,Stable,Defect triage twice weekly
+RI-003,PRJ-001,Risk,Network upgrade delays go-live,Go-live depends on the core network upgrade completing on time,Schedule,Infrastructure Team,2026-05-20,2027-01-15,Open,Possible,Major,12,High,Stable,Confirm network cutover date
+RI-004,PRJ-001,Risk,Super-users not released for training,40 super-users may not be released for 3 days of training,Resourcing,Sarah Nguyen,2026-06-11,2026-12-01,Open,Possible,Moderate,9,Medium,Stable,Confirm rosters with nursing units
+RI-005,PRJ-002,Risk,Pharmacist workload during rollout,Pharmacy may lack capacity to verify orders during ward go-lives,Clinical Safety,Sarah Nguyen,2026-03-18,2026-12-18,Open,Possible,Major,12,High,Decreasing,Backfill locum pharmacists
+RI-006,PRJ-002,Issue,Device shortage on wards 9-10,Insufficient workstations-on-wheels for wards 9 and 10,Delivery,Emma Walsh,2026-09-21,2026-10-30,In Progress,,Moderate,,Medium,Stable,Expedite device order
+RI-007,PRJ-002,Risk,Formulary changes before December,Major formulary changes could require rework before completion,Scope,James O'Brien,2026-01-20,2026-12-18,Open,Unlikely,Minor,4,Low,Stable,Monitor drug committee agenda
+RI-008,PRJ-003,Issue,Privacy impact assessment overdue,PIA not signed off; blocking video consult go-live,Compliance,Raj Patel,2026-08-12,2026-10-16,Open,,Major,,High,Increasing,Escalate to Privacy Officer
+RI-009,PRJ-003,Risk,Low clinician uptake,Specialists may not adopt the platform without workflow changes,Benefits,Priya Raman,2026-04-14,2026-11-30,Open,Likely,Moderate,12,High,Stable,Run clinic champion program
+RI-010,PRJ-003,Risk,Identity provider integration delay,Patient login depends on the statewide identity service API,Schedule,Raj Patel,2026-03-02,2026-11-02,Open,Likely,Major,16,High,Increasing,Confirm API access date
+RI-011,PRJ-003,Issue,Contingency exceeded on licensing,Additional licensing costs have exhausted approved contingency,Cost,Raj Patel,2026-09-15,2026-11-30,Open,,Major,,High,Increasing,Submit budget variation request
+RI-012,PRJ-004,Issue,Image migration throughput below plan,Migration running at 60% of the planned rate,Schedule,Lucy Chen,2026-08-25,2026-11-07,In Progress,,Major,,High,Stable,Add second migration node
+RI-013,PRJ-004,Risk,Reporting downtime during cutover,Cutover window may exceed acceptable radiology reporting downtime,Clinical Safety,Tom Fletcher,2026-06-03,2026-12-15,Open,Possible,Severe,15,High,Stable,Agree downtime procedures
+RI-014,PRJ-004,Risk,Cloud tenancy security approval,Security sign-off required for cloud tenancy,Compliance,Cyber Security,2026-02-17,2026-07-31,Closed,Unlikely,Major,8,Medium,Decreasing,Approved 2026-07-28
+RI-015,PRJ-005,Risk,Alert fatigue,High false-positive rate may cause clinicians to ignore alerts,Clinical Safety,Sarah Nguyen,2026-06-22,2027-02-01,Open,Likely,Severe,20,Extreme,Increasing,Tune thresholds with ICU data
+RI-016,PRJ-005,Risk,Incomplete vital signs data,Observations may not be captured electronically within 15 minutes,Data Quality,Sarah Nguyen,2026-05-25,2026-12-01,Open,Possible,Major,12,High,Stable,Run obs timeliness audit
+RI-017,PRJ-005,Risk,EMR upgrade slippage,Alert engine requires the EMR v12 rules module from PRJ-001,Schedule,Mark Davies,2026-05-25,2027-03-31,Open,Likely,Major,16,High,Increasing,Track EMR upgrade milestones
+RI-018,PRJ-006,Issue,Low surgeon engagement,Only 4 of 11 surgical units attended design sessions,Benefits,Priya Raman,2026-08-04,2026-10-31,In Progress,,Moderate,,Medium,Stable,Director of Surgery to mandate attendance
+RI-019,PRJ-006,Risk,Undocumented anaesthetics API,Anaesthetics system API is undocumented,Technical,Raj Patel,2026-05-12,2026-12-04,Open,Possible,Moderate,9,Medium,Stable,Request vendor API spec
+RI-020,PRJ-007,Issue,Procurement on hold,Tender evaluation paused by procurement review,Schedule,Emma Walsh,2026-08-18,2026-11-30,Open,,Major,,High,Stable,Await procurement committee decision
+RI-021,PRJ-007,Risk,Current rostering system end of support,Existing rostering system is unsupported after June 2027,Operational,Tom Fletcher,2026-03-09,2027-06-30,Open,Almost certain,Major,20,Extreme,Increasing,Negotiate extended support
+RI-022,PRJ-008,Risk,Device pricing not held,Quoted device pricing may not hold until mid-2027,Cost,James O'Brien,2026-04-20,2027-06-30,Open,Possible,Minor,6,Medium,Stable,Request written price hold
+RI-023,PRJ-009,Issue,Interface engine capacity diverted,Integration team diverted to PACS; build cannot resume,Resourcing,Integration Team,2026-09-01,2027-01-29,Open,,Major,,High,Stable,Revisit after PACS cutover
+RI-024,PRJ-009,Risk,GP referral template change,Statewide referral template update may require rework,Scope,Priya Raman,2026-07-07,2026-12-11,Open,Possible,Moderate,9,Medium,Stable,Monitor statewide release notes
+RI-025,PRJ-010,Issue,Duplicate result notifications,Clinicians received duplicate result alerts post go-live,Quality,Daniel Kim,2026-01-12,2026-02-06,Closed,,Moderate,,Medium,Decreasing,Fixed in release 1.3
+RI-026,PRJ-011,Risk,GP software compatibility,Some GP systems may not render the new summary format,Technical,Lucy Chen,2025-04-15,2026-05-30,Closed,Unlikely,Moderate,6,Medium,Decreasing,Resolved in testing
+RI-027,PRJ-012,Issue,Bed status feed latency,Bed status feed delayed up to 20 minutes,Quality,Raj Patel,2026-03-03,2026-05-15,Closed,,Major,,High,Decreasing,Resolved via ADT feed change
+RI-028,PRJ-012,Risk,Defects not rectified before DLP expiry,Outstanding display defects may not be fixed before the defects period ends,Quality,Olivia Grant,2026-07-20,2027-05-28,Open,Unlikely,Moderate,6,Medium,Stable,Fortnightly defect review with vendor
+RI-029,PRJ-013,Risk,Pharmacist-led model not endorsed,Reconciliation model assumes pharmacists own the process at admission,Scope,James O'Brien,2026-09-10,2026-12-15,Open,Possible,Moderate,9,Medium,Stable,Validate in business case
+RI-030,PRJ-013,Risk,ePrescribing rollout delay,Requires ePrescribing (PRJ-002) live across all wards,Schedule,Emma Walsh,2026-09-10,2026-12-18,Open,Unlikely,Major,8,Medium,Stable,Track ePrescribing ward schedule
+RI-031,PRJ-014,Risk,Data sharing agreement delay,Agreement with public health may take 6+ months,Compliance,Sarah Nguyen,2026-09-14,2027-03-31,Open,Likely,Moderate,12,High,Stable,Start legal engagement early
+RI-032,PRJ-015,Issue,No delivery resources assigned,No PMs available to start planning,Resourcing,PMO,2026-09-12,2026-11-30,Open,,Major,,High,Increasing,Raise at portfolio prioritisation forum
+RI-033,PRJ-015,Risk,Booking system lacks external API,Outpatient booking system may not support external booking,Technical,PMO,2026-09-12,2027-03-01,Open,Possible,Major,12,High,Stable,Request vendor roadmap
+RI-034,PRJ-016,Risk,Auto-coding accuracy below audit threshold,95% auto-code accuracy may not satisfy auditors,Compliance,Tom Fletcher,2026-09-28,2026-12-11,Open,Possible,Major,12,High,Stable,Confirm with clinical coding audit lead
 </script>
 <script type="text/csv" id="csv-resourcing">
 allocation_id,project_id,person_id,person_name,role,fte_allocation,hours_per_week,allocation_start,allocation_end,allocation_status
@@ -420,6 +432,19 @@ AL-025,PRJ-013,ITPM-02,Emma Walsh,IT PM,0.1,3.8,2026-11-02,2027-10-29,Planned
 AL-026,PRJ-014,CPM-01,Sarah Nguyen,Clinical PM,0.3,11.4,2026-09-07,2027-12-17,Active
 AL-027,PRJ-016,CPM-04,Tom Fletcher,Clinical PM,0.2,7.6,2026-08-17,2027-09-24,Active
 AL-028,PRJ-016,ITPM-05,Mark Davies,IT PM,0.2,7.6,2026-08-17,2027-09-24,Active
+AL-029,PRJ-001,CAPPM-01,Hannah Brooks,Capital PM,0.5,19,2025-11-03,2027-03-31,Active
+AL-030,PRJ-004,CAPPM-01,Hannah Brooks,Capital PM,0.4,15.2,2025-09-01,2027-01-29,Active
+AL-031,PRJ-010,CAPPM-01,Hannah Brooks,Capital PM,0.1,3.8,2024-11-04,2027-02-12,Active
+AL-032,PRJ-002,CAPPM-02,Marcus Lee,Capital PM,0.4,15.2,2025-07-14,2026-12-18,Active
+AL-033,PRJ-005,CAPPM-02,Marcus Lee,Capital PM,0.2,7.6,2026-05-11,2027-04-30,Active
+AL-034,PRJ-009,CAPPM-02,Marcus Lee,Capital PM,0.1,3.8,2025-08-04,2026-12-11,Reduced (Standby)
+AL-035,PRJ-011,CAPPM-02,Marcus Lee,Capital PM,0.1,3.8,2025-02-03,2027-06-25,Active
+AL-036,PRJ-013,CAPPM-02,Marcus Lee,Capital PM,0.2,7.6,2026-11-02,2027-10-29,Planned
+AL-037,PRJ-003,CAPPM-03,Olivia Grant,Capital PM,0.3,11.4,2026-02-02,2026-11-30,Active
+AL-038,PRJ-006,CAPPM-03,Olivia Grant,Capital PM,0.3,11.4,2026-03-16,2027-02-26,Active
+AL-039,PRJ-007,CAPPM-03,Olivia Grant,Capital PM,0.1,3.8,2025-10-06,2027-06-30,Reduced (Standby)
+AL-040,PRJ-012,CAPPM-03,Olivia Grant,Capital PM,0.1,3.8,2025-06-02,2027-05-28,Active
+AL-041,PRJ-016,CAPPM-03,Olivia Grant,Capital PM,0.2,7.6,2026-08-17,2027-09-24,Active
 </script>
 
 <script>
@@ -442,7 +467,9 @@ const D={
   raidd:parseCSV(document.getElementById('csv-raidd').textContent.trim()),
   resourcing:parseCSV(document.getElementById('csv-resourcing').textContent.trim())
 };
-const SRC={projects:'projects.csv',raidd:'raidd_log.csv',resourcing:'resourcing.csv'};
+const SRC={projects:'projects.csv',raidd:'risks_issues.csv',resourcing:'resourcing.csv'};
+const LIK=['Rare','Unlikely','Possible','Likely','Almost certain'],CON=['Insignificant','Minor','Moderate','Major','Severe'];
+const RATES=['Low','Medium','High','Extreme'];
 
 /* ================= helpers ================= */
 const STATUSES=['In-flight','Standby','Pipeline','Completed'];
@@ -474,7 +501,7 @@ function model(){
   });
   const byId=Object.fromEntries(P.map(p=>[p.project_id,p]));
   const ref=new Date(Math.max(...P.map(p=>+d(p.last_updated)||0)));
-  const R=D.raidd.map(r=>({...r,due:d(r.due_date),raised:d(r.raised_date),open:r.status!=='Closed'}));
+  const R=D.raidd.filter(r=>!r.type||/risk|issue/i.test(r.type)).map(r=>({...r,due:d(r.target_date||r.due_date),raised:d(r.raised_date),severity:r.rating||r.severity,open:r.status!=='Closed',L:LIK.indexOf(r.likelihood)+1,C:CON.indexOf(r.consequence)+1}));
   const A=D.resourcing.map(a=>({...a,fte:n(a.fte_allocation),s:d(a.allocation_start),e:d(a.allocation_end)}));
   const cur=A.filter(a=>a.s<=ref&&a.e>=ref&&!/ended/i.test(a.allocation_status));
   return {P,byId,ref,R,A,cur};
@@ -484,7 +511,7 @@ function model(){
 function render(){
   const M=model();const {P,byId,ref,R,cur}=M;
   document.getElementById('repDate').textContent='Reporting date · '+fmtD(ref);
-  document.getElementById('srcInfo').textContent=`${P.length} projects · ${R.length} RAIDD · ${M.A.length} allocations`;
+  document.getElementById('srcInfo').textContent=`${P.length} projects · ${R.filter(r=>r.type==='Risk').length} risks · ${R.filter(r=>r.type==='Issue').length} issues · ${M.A.length} allocations`;
 
   /* ---- KPIs ---- */
   const cnt=s=>P.filter(p=>p.status===s).length;
@@ -492,6 +519,8 @@ function render(){
   const fl=P.filter(p=>p.status==='In-flight');
   const sum=(a,k)=>a.reduce((t,x)=>t+x[k],0);
   const openR=R.filter(r=>r.open), openHigh=openR.filter(r=>/high|extreme/i.test(r.severity));
+  const openRisks=openR.filter(r=>r.type==='Risk'), openIssues=openR.filter(r=>r.type==='Issue');
+  const hiRisks=openRisks.filter(r=>/high|extreme/i.test(r.severity)), extRisks=openRisks.filter(r=>r.severity==='Extreme'), hiIssues=openIssues.filter(r=>/high|critical/i.test(r.severity));
   const flB=sum(fl,'budget'),flS=sum(fl,'spend'),lC=sum(live,'cont'),lCS=sum(live,'cspend');
   const people={};cur.forEach(a=>{people[a.person_name]=(people[a.person_name]||0)+a.fte});
   const over=Object.entries(people).filter(([,v])=>v>1.0001);
@@ -514,16 +543,17 @@ function render(){
     <div class="legend" style="margin-top:8px">${['Green','Amber','Red'].map(r=>`<span><span class="rag ${r}">${r==='Green'?'On time':r==='Amber'?'Slipping':'Late'} ${flS2.filter(p=>p.sched.rag===r).length}</span></span>`).join('')}</div></div>`);
   k.push(`<div class="card kpi span-4"><div class="label">PM capacity allocated</div><div class="value">${pct(allocT/capT)}</div>
     <div class="note">${allocT.toFixed(1)} of ${capT.toFixed(1)} FTE allocated · ${over.length} PM${over.length===1?'':'s'} over 1.0 FTE</div>
-    ${['Clinical PM','IT PM'].map(r=>{const c=roleCap(r);return `<div class="rolebar" ${tipAttr(r,roster.filter(x=>x.role===r).map(x=>[x.nm,x.t.toFixed(1)+' FTE']))}><span>${r}</span><div class="meter"><span style="width:${Math.min(100,c.a/c.n*100)}%;background:${meterCol(c.a/c.n)}"></span></div><span>${c.a.toFixed(1)} / ${c.n.toFixed(1)}</span></div>`}).join('')}</div>`);
+    ${[...new Set(M.A.map(a=>a.role))].map(r=>{const c=roleCap(r);return `<div class="rolebar" ${tipAttr(r,roster.filter(x=>x.role===r).map(x=>[x.nm,x.t.toFixed(1)+' FTE']))}><span>${r}</span><div class="meter"><span style="width:${Math.min(100,c.a/c.n*100)}%;background:${meterCol(c.a/c.n)}"></span></div><span>${c.a.toFixed(1)} / ${c.n.toFixed(1)}</span></div>`}).join('')}</div>`);
   k.push(`<div class="card kpi span-4"><div class="label">In-flight budget spent</div><div class="value">${money(flS)}</div>
     <div class="note">of ${money(flB)} budget · ${pct(flS/flB)} spent</div>
     <div class="meter"><span style="width:${Math.min(100,flS/flB*100)}%;background:var(--s-inflight)"></span></div></div>`);
   k.push(`<div class="card kpi span-4"><div class="label">Contingency drawn (in-flight + standby)</div><div class="value">${money(lCS)}</div>
     <div class="note">of ${money(lC)} held · ${pct(lCS/lC)} drawn</div>
     <div class="meter"><span style="width:${Math.min(100,lCS/lC*100)}%;background:var(--m-cont)"></span></div></div>`);
-  k.push(`<div class="card kpi span-4"><div class="label">Open high-severity RAIDD</div><div class="value">${openHigh.length}</div>
-    <div class="note">${openR.length} open items in total · ${reds} Red project${reds===1?'':'s'}</div>
-    <div class="meter"><span style="width:${openHigh.length/Math.max(1,openR.length)*100}%;background:var(--critical)"></span></div></div>`);
+  k.push(`<div class="card kpi span-4"><div class="label">Open high &amp; extreme risks</div><div class="value">${hiRisks.length} <span style="font-size:18px;color:var(--muted);font-weight:600">of ${openRisks.length}</span></div>
+    <div class="note">${extRisks.length} extreme · ${openIssues.length} open issues, ${hiIssues.length} rated high</div>
+    <div class="status-split">${RATES.slice().reverse().map(r=>{const x=openRisks.filter(y=>y.severity===r);return x.length?`<span style="flex:${x.length};background:${{Extreme:'var(--critical)',High:'var(--serious)',Medium:'var(--warning)',Low:'var(--good)'}[r]}" ${tipAttr(r+' risks',[['Open',x.length]])}></span>`:''}).join('')}</div>
+    <div class="legend" style="margin-top:8px">${RATES.slice().reverse().map(r=>`<span><span class="rate ${r}">${r} ${openRisks.filter(y=>y.severity===r).length}</span></span>`).join('')}</div></div>`);
   document.getElementById('kpis').innerHTML=k.join('');
 
   /* ---- Key updates (exec summary; critical + serious only) ---- */
@@ -536,7 +566,8 @@ function render(){
   if(redP.length)U.push({sev:'critical',h:`<b>${wordN(redP.length).replace(/^./,c=>c.toUpperCase())} of ${live.length} active projects ${redP.length===1?'is':'are'} rated Red.</b> ${join(redP.map(p=>`${esc(p.project_name)} (${esc(lc(p.status_reason.replace(/^On hold - /i,'on hold, ')))})`))}. ${redP.length===1?'It needs':'Each needs'} a recovery plan or an escalation decision.`});
   const overC=P.filter(p=>p.status!=='Completed'&&p.cont&&p.cspend>p.cont);
   if(overC.length)U.push({sev:'critical',h:overC.length===1?`<b>${esc(overC[0].project_name)} has exceeded its approved contingency</b>, with ${money(overC[0].cspend)} drawn against ${money(overC[0].cont)} (${pct(overC[0].cPct)}). A budget variation will be required.`:`<b>${overC.length} projects have exceeded their approved contingency</b> (${join(overC.map(p=>esc(p.project_name)))}). Budget variations will be required.`});
-  if(overdue.length)U.push({sev:'critical',h:`<b>${overdue.length} RAIDD item${overdue.length>1?'s are':' is'} past due</b> across ${new Set(overdue.map(r=>r.project_id)).size} project${new Set(overdue.map(r=>r.project_id)).size>1?'s':''} and need${overdue.length>1?'':'s'} an owner update.`});
+  if(extRisks.length){const inc=extRisks.filter(r=>/increas/i.test(r.trend)).length;U.push({sev:'critical',h:`<b>${extRisks.length} risk${extRisks.length>1?'s are':' is'} rated Extreme.</b> ${join(extRisks.map(r=>`${esc(lc(r.title))} on ${esc(byId[r.project_id]?.project_name||'')}`)).replace(/^./,c=>c.toUpperCase())}. ${inc===extRisks.length?(inc>1?'Both are':'It is')+' trending upward':inc?inc+' of these '+(inc>1?'are':'is')+' trending upward':'Ratings are stable'}, so treatment plans should be confirmed with sponsors.`.replace('Both are',extRisks.length>2?'All are':'Both are')})}
+  if(overdue.length)U.push({sev:'critical',h:`<b>${overdue.length} risk${overdue.length>1?'s and issues are':' or issue is'} past ${overdue.length>1?'their':'its'} target date</b> across ${new Set(overdue.map(r=>r.project_id)).size} project${new Set(overdue.map(r=>r.project_id)).size>1?'s':''} and need${overdue.length>1?'':'s'} an owner update.`});
   const schedRed=flS2.filter(p=>p.sched.rag==='Red'), schedAmb=flS2.filter(p=>p.sched.rag==='Amber');
   const late=fl.filter(p=>p.sched&&p.sched.rag!=='Green'&&p.end&&days(ref,p.end)<=90);
   if(onTime.length<flS2.length){
@@ -559,7 +590,7 @@ function render(){
     U.push({sev:'serious',h:`<b>PM capacity is ${pct(allocT/capT)} allocated overall, but ${join(over.map(([nm])=>esc(nm)))} ${over.length>1?'are':'is'} over-committed</b> at ${join(over.map(([,v])=>v.toFixed(1)+' FTE'))}. ${spare?`${wordN(spare).replace(/^./,c=>c.toUpperCase())} PM${spare>1?'s have':' has'} spare capacity to rebalance work.`:'There is little spare capacity to rebalance.'}`});
   }
   const soonHigh=openHigh.filter(r=>r.due&&r.due>=ref&&days(ref,r.due)<=30).sort((a,b)=>a.due-b.due);
-  if(soonHigh.length){const f=soonHigh[0];U.push({sev:'serious',h:`<b>${wordN(soonHigh.length).replace(/^./,c=>c.toUpperCase())} high-severity RAIDD item${soonHigh.length>1?'s fall':' falls'} due in the next 30 days.</b> The most urgent, due ${fmtD(f.due).replace(/ \d{4}$/,'')}, is “${esc(f.title)}” on ${esc(byId[f.project_id]?.project_name||'')}.`});}
+  if(soonHigh.length){const f=soonHigh[0];U.push({sev:'serious',h:`<b>${wordN(soonHigh.length).replace(/^./,c=>c.toUpperCase())} high-rated risk${soonHigh.length>1?'s and issues reach their':' or issue reaches its'} target date in the next 30 days.</b> The most urgent, due ${fmtD(f.due).replace(/ \d{4}$/,'')}, is “${esc(f.title)}” on ${esc(byId[f.project_id]?.project_name||'')}.`});}
   const order={critical:0,serious:1};U.sort((a,b)=>order[a.sev]-order[b.sev]);
   document.getElementById('watch').innerHTML=U.length?U.map(u=>`<li class="${u.sev}"><span class="sev">${ICON[u.sev]}${u.sev}</span><div>${u.h}</div></li>`).join(''):'<li><span></span><div>No critical or serious matters this period.</div></li>';
 
@@ -617,24 +648,33 @@ function render(){
         ${overCs?`<span class="bar over" style="left:calc(${xm(p.budget+overS+p.cont)}% + 2px);width:${xm(overCs)}%"></span>`:''}
       </div><div class="val">${money(p.spend+p.cspend)}<br><span style="color:var(--muted)">of ${money(p.budget+p.cont)}</span></div></div>`}).join('');
 
-  /* ---- RAIDD ---- */
-  const types=['Risk','Assumption','Issue','Dependency','Decision'];
+  /* ---- Risks & issues ---- */
   const due60=openR.filter(r=>r.due&&days(ref,r.due)<=60).sort((a,b)=>a.due-b.due);
-  document.getElementById('raiddMinis').innerHTML=[[openR.length,'Open items'],[openHigh.length,'High severity'],[openR.filter(r=>r.type==='Issue').length,'Open issues'],[overdue.length,'Overdue']].map(([v,l])=>`<div class="mini"><b>${v}</b><span>${l}</span></div>`).join('');
-  const rp=P.filter(p=>openR.some(r=>r.project_id===p.project_id)).sort((a,b)=>openR.filter(r=>r.project_id===b.project_id).length-openR.filter(r=>r.project_id===a.project_id).length);
-  const lvl=c=>c>=3?'c4':c===2?'c3':c===1?'c1':'';
-  let hh=`<div class="hd l">Project</div>${types.map(t=>`<div class="hd">${t}</div>`).join('')}<div class="hd">High</div>`;
-  rp.forEach(p=>{
-    const its=openR.filter(r=>r.project_id===p.project_id);
-    hh+=`<div class="pl"><span class="rag ${p.rag_status}" style="font-size:0"></span><span>${esc(p.project_name)}</span></div>`;
-    types.forEach(t=>{const x=its.filter(r=>r.type===t);hh+=`<div class="cell ${lvl(x.length)}" ${x.length?tipAttr(`${p.project_name} · ${t}`,x.map(r=>[r.severity,r.title])):''}>${x.length||'·'}</div>`});
-    const hi=its.filter(r=>/high|extreme/i.test(r.severity)).length;
-    hh+=`<div class="cell" style="${hi?'background:color-mix(in srgb,var(--critical) 16%,transparent);color:var(--critical)':''}">${hi||'·'}</div>`;
-  });
-  const heat=document.getElementById('heat');heat.style.gridTemplateColumns=`minmax(150px,1.6fr) repeat(${types.length+1},minmax(44px,1fr))`;heat.innerHTML=hh;
+  const zone=s=>s<=4?'Low':s<=9?'Medium':s<=16?'High':'Extreme';
+  let mh=`<div class="ttl l">Likelihood ↓ · Consequence →</div>`;
+  for(let l=5;l>=1;l--){
+    mh+=`<div class="ax">${LIK[l-1]}</div>`;
+    for(let c=1;c<=5;c++){const x=openRisks.filter(r=>r.L===l&&r.C===c);
+      mh+=`<div class="mc z-${zone(l*c)} ${x.length?'on':''}" ${x.length?tipAttr(`${LIK[l-1]} × ${CON[c-1]} · ${zone(l*c)}`,x.map(r=>[shortName(r.title),shortName(byId[r.project_id]?.project_name||'')])):''}>${x.length||''}</div>`}
+  }
+  mh+=`<div></div>${CON.map(c=>`<div class="ax axb">${c}</div>`).join('')}`;
+  document.getElementById('matrix').innerHTML=mh;
+  document.getElementById('raiddMinis').innerHTML=[[openRisks.length,'Open risks'],[hiRisks.length,'High or extreme'],[openIssues.length,'Open issues'],[hiIssues.length,'High issues'],[overdue.length,'Past target']].map(([v,l])=>`<div class="mini"><b>${v}</b><span>${l}</span></div>`).join('');
+  const rk=r=>RATES.indexOf(r);
+  const rp=P.map(p=>{const rs=openRisks.filter(r=>r.project_id===p.project_id),is=openIssues.filter(r=>r.project_id===p.project_id);
+    const top=rs.reduce((m,r)=>rk(r.severity)>rk(m)?r.severity:m,'');const inc=rs.concat(is).filter(r=>/increas/i.test(r.trend)).length;
+    const expo=rs.reduce((s,r)=>s+(+r.risk_score||0),0)+is.reduce((s,r)=>s+(r.severity==='High'?16:r.severity==='Medium'?9:4),0);
+    return {p,rs,is,top,inc,expo}}).filter(x=>x.rs.length||x.is.length).sort((a,b)=>b.expo-a.expo);
+  document.getElementById('riTable').innerHTML=`<thead><tr><th>Project</th><th class="num">Risks</th><th>Highest risk</th><th class="num">Issues</th><th class="num">High issues</th><th class="num">Rising</th></tr></thead><tbody>${rp.map(x=>`<tr>
+    <td><b>${esc(x.p.project_name)}</b><br><span class="rag ${x.p.rag_status}">${x.p.rag_status}</span></td>
+    <td class="num" ${x.rs.length?tipAttr('Open risks',x.rs.map(r=>[shortName(r.title),r.severity])):''}>${x.rs.length||'—'}</td>
+    <td>${x.top?`<span class="rate ${x.top}">${x.top}</span>`:'—'}</td>
+    <td class="num" ${x.is.length?tipAttr('Open issues',x.is.map(r=>[shortName(r.title),r.severity])):''}>${x.is.length||'—'}</td>
+    <td class="num">${x.is.filter(r=>r.severity==='High').length?`<span class="rate High">${x.is.filter(r=>r.severity==='High').length}</span>`:'—'}</td>
+    <td class="num" style="${x.inc?'color:var(--critical);font-weight:700':''}">${x.inc?x.inc+' ▲':'—'}</td></tr>`).join('')}</tbody>`;
   document.getElementById('due').innerHTML=due60.length?due60.map(r=>`<div class="li"><div class="due">${fmtD(r.due).replace(/ \d{4}$/,'')}<small>${days(ref,r.due)<0?Math.abs(days(ref,r.due))+'d overdue':'in '+days(ref,r.due)+'d'}</small></div>
-    <div><b>${esc(r.title)}</b><small>${esc(byId[r.project_id]?.project_name||'')} · ${esc(r.owner)}</small></div>
-    <div style="text-align:right"><span class="tag">${r.type}</span><br><span class="rag ${r.severity==='High'?'Red':r.severity==='Medium'?'Amber':'Green'}" style="margin-top:4px">${r.severity}</span></div></div>`).join(''):'<p class="sub">Nothing due.</p>';
+    <div><b>${esc(r.title)}</b><small>${esc(byId[r.project_id]?.project_name||'')} · ${esc(r.owner)}${r.response?' · '+esc(r.response):''}</small></div>
+    <div style="text-align:right"><span class="tag">${r.type}</span><br><span class="rate ${r.severity}" style="margin-top:4px">${r.severity}</span></div></div>`).join(''):'<p class="sub">Nothing due.</p>';
 
   /* ---- Capacity ---- */
   const ppl=[...new Set(M.A.map(a=>a.person_name))].map(nm=>{const a=cur.filter(x=>x.person_name===nm);const any=M.A.find(x=>x.person_name===nm);return {nm,role:any.role,a,t:a.reduce((s,x)=>s+x.fte,0)}}).sort((a,b)=>a.role.localeCompare(b.role)||b.t-a.t);
@@ -645,11 +685,11 @@ function render(){
     return `<div class="drow"><div class="name">${esc(pp.nm)}<small>${pp.role}</small></div>
       <div class="track">${ctk.map(t=>`<span class="gl" style="left:${xc(t)}%"></span>`).join('')}${segs}<span class="capline" style="left:${xc(1)}%"></span></div>
       <div class="val" style="${pp.t>1.0001?'color:var(--critical);font-weight:700':''}">${pp.t.toFixed(1)} FTE${pp.t>1.0001?' ▲':''}</div></div>`}).join('');
-  document.getElementById('capLegend').innerHTML=['In-flight','Standby','Pipeline'].map(s=>`<span><i style="background:${SCOL[s]}"></i>${s}</span>`).join('')+'<span>Hover a segment for project details</span>';
+  document.getElementById('capLegend').innerHTML=STATUSES.filter(s=>cur.some(a=>byId[a.project_id]?.status===s)).map(s=>`<span><i style="background:${SCOL[s]}"></i>${s}</span>`).join('')+'<span>Hover a segment for project details</span>';
 
   const covP=P.filter(p=>p.status!=='Completed').sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status));
   const who=(pid,role)=>{const a=M.A.filter(x=>x.project_id===pid&&x.role===role&&x.allocation_status!=='Ended');return a.length?a.map(x=>`${esc(x.person_name)} <span style="color:var(--muted)">${x.fte.toFixed(1)}${x.allocation_status==='Planned'?' · planned':''}</span>`).join('<br>'):'<span class="flag crit" style="margin:0">None</span>'};
-  document.getElementById('cover').innerHTML=`<thead><tr><th>Project</th><th>Clinical PM</th><th>IT PM</th></tr></thead><tbody>${covP.map(p=>`<tr><td><b>${esc(p.project_name)}</b><br><span class="st" style="color:var(--ink-2)"><span class="dot" style="background:${SCOL[p.status]}"></span>${p.status}</span></td><td>${who(p.project_id,'Clinical PM')}</td><td>${who(p.project_id,'IT PM')}</td></tr>`).join('')}</tbody>`;
+  document.getElementById('cover').innerHTML=`<thead><tr><th>Project</th>${[...new Set(M.A.map(a=>a.role))].map(r=>`<th>${esc(r)}</th>`).join('')}</tr></thead><tbody>${covP.map(p=>`<tr><td><b>${esc(p.project_name)}</b><br><span class="st" style="color:var(--ink-2)"><span class="dot" style="background:${SCOL[p.status]}"></span>${p.status}</span></td>${[...new Set(M.A.map(a=>a.role))].map(r=>`<td>${who(p.project_id,r)}</td>`).join('')}</tr>`).join('')}</tbody>`;
 
   /* ---- Gantt ---- */
   const gp=P.filter(p=>p.start&&(p.end||p.actualEnd)).sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status)||a.start-b.start);
@@ -680,10 +720,10 @@ function renderTable(M){
   const rows=P.filter(p=>FILTER==='All'||p.status===FILTER).map(p=>{
     const or=R.filter(r=>r.project_id===p.project_id&&r.open);
     const lead=role=>A.filter(a=>a.project_id===p.project_id&&a.role===role&&a.allocation_status!=='Ended').map(a=>a.person_name).join(', ')||A.filter(a=>a.project_id===p.project_id&&a.role===role).map(a=>a.person_name).join(', ')||'—';
-    return {...p,openR:or.length,highR:or.filter(r=>/high|extreme/i.test(r.severity)).length,cpm:lead('Clinical PM'),itpm:lead('IT PM'),fte:A.filter(a=>a.project_id===p.project_id&&a.allocation_status!=='Ended').reduce((t,a)=>t+a.fte,0)};
+    return {...p,openR:or.length,highR:or.filter(r=>/high|extreme/i.test(r.severity)).length,roles:Object.fromEntries([...new Set(A.map(a=>a.role))].map(r=>[r,lead(r)])),fte:A.filter(a=>a.project_id===p.project_id&&a.allocation_status!=='Ended').reduce((t,a)=>t+a.fte,0)};
   });
-  const cols=[['project_name','Project'],['status','Status'],['phase','Phase'],['rag_status','RAG'],['complete','Complete',1],['budget','Budget',1],['bPct','Budget spent',1],['cPct','Cont. used',1],['openR','Open RAIDD',1],['cpm','Clinical PM'],['itpm','IT PM'],['fte','FTE',1]];
-  rows.sort((a,b)=>{const x=a[SORT.k],y=b[SORT.k];return (typeof x==='number'?((isFinite(x)?x:-1)-(isFinite(y)?y:-1)):String(x).localeCompare(String(y)))*SORT.dir});
+  const cols=[['project_name','Project'],['status','Status'],['phase','Phase'],['rag_status','RAG'],['complete','Complete',1],['budget','Budget',1],['bPct','Budget spent',1],['cPct','Cont. used',1],['openR','Open risks & issues',1],...[...new Set(A.map(a=>a.role))].map(r=>['role:'+r,r]),['fte','FTE',1]];
+  rows.sort((a,b)=>{const g=(o,k)=>k.startsWith('role:')?o.roles[k.slice(5)]:o[k];const x=g(a,SORT.k),y=g(b,SORT.k);return (typeof x==='number'?((isFinite(x)?x:-1)-(isFinite(y)?y:-1)):String(x).localeCompare(String(y)))*SORT.dir});
   document.getElementById('filters').innerHTML=['All',...STATUSES].map(s=>`<button class="fbtn" aria-pressed="${FILTER===s}" data-f="${s}">${s}${s==='All'?'':' · '+P.filter(p=>p.status===s).length}</button>`).join('');
   const over=v=>v>1?'color:var(--critical);font-weight:700':'';
   document.getElementById('register').innerHTML=`<thead><tr>${cols.map(([k,l,num])=>`<th class="${num?'num':''}" data-k="${k}">${l}${SORT.k===k?(SORT.dir>0?' ↑':' ↓'):''}</th>`).join('')}</tr></thead><tbody>${rows.map(p=>`<tr>
@@ -692,7 +732,7 @@ function renderTable(M){
     <td style="white-space:nowrap">${esc(p.phase)}</td><td><span class="rag ${p.rag_status}">${p.rag_status}</span></td>
     <td class="num">${pct(p.complete)}</td><td class="num">${money(p.budget)}</td><td class="num" style="${over(p.bPct)}">${pct(p.bPct)}</td><td class="num" style="${over(p.cPct)}">${pct(p.cPct)}</td>
     <td class="num">${p.openR}${p.highR?` <span class="flag crit" style="margin-left:2px">${p.highR} high</span>`:''}</td>
-    <td>${esc(p.cpm)}</td><td>${esc(p.itpm)}</td><td class="num">${p.fte?p.fte.toFixed(1):'—'}</td></tr>`).join('')}</tbody>`;
+    ${Object.values(p.roles).map(v=>`<td>${esc(v)}</td>`).join('')}<td class="num">${p.fte?p.fte.toFixed(1):'—'}</td></tr>`).join('')}</tbody>`;
 }
 document.addEventListener('click',e=>{
   const f=e.target.closest('[data-f]');if(f){FILTER=f.dataset.f;renderTable();return}
@@ -717,7 +757,7 @@ document.getElementById('fileIn').addEventListener('change',async e=>{
   const done=[];
   for(const f of e.target.files){
     const rows=parseCSV(await f.text());if(!rows.length)continue;const h=Object.keys(rows[0]);
-    const key=h.includes('raidd_id')?'raidd':h.includes('allocation_id')?'resourcing':h.includes('project_name')?'projects':null;
+    const key=(h.includes('item_id')||h.includes('raidd_id'))?'raidd':h.includes('allocation_id')?'resourcing':h.includes('project_name')?'projects':null;
     if(key){D[key]=rows;SRC[key]=f.name;done.push(`${f.name} → ${key}`)} else done.push(`${f.name}: not recognised`);
   }
   try{render();toast('Loaded '+done.join(', '))}catch(err){toast('Could not render: '+err.message);console.error(err)}
