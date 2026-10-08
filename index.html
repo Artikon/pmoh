@@ -155,6 +155,28 @@ main{max-width:1360px;margin:-34px auto 0;padding:0 32px 64px;position:relative;
 @media (prefers-color-scheme: dark){.rate.High{color:var(--serious)}.rate.Medium{color:var(--warning)}.rate.Low{color:var(--good)}}
 .list.two{display:grid;grid-template-columns:1fr 1fr;column-gap:32px}
 @media (max-width:900px){.list.two{grid-template-columns:1fr}}
+.rifbar{grid-column:span 12;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:var(--surface);border:1px solid var(--ring);border-radius:14px;padding:12px 16px}
+.rifbar .grp{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.rifbar .lab{font-size:11px;font-weight:650;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-right:4px}
+.rifbar select{font:inherit;font-size:12.5px;padding:6px 10px;border-radius:999px;border:1px solid var(--ring);background:var(--surface);color:var(--ink)}
+.rifbar .count{margin-left:auto;font-size:12.5px;color:var(--ink-2)}
+.empty{display:flex;align-items:center;justify-content:center;min-height:220px;border-radius:10px;background:var(--surface-2);color:var(--ink-2);font-size:13px;text-align:center;padding:20px}
+.size{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:4px;border:1px solid var(--axis);color:var(--ink-2);text-transform:uppercase}
+.fstrip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+@media (max-width:1100px){.fstrip{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.fstrip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fs{background:var(--surface-2);border-radius:10px;padding:12px 14px;min-width:0}
+.fs .l{font-size:12px;color:var(--ink-2);font-weight:550}
+.fs .v{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:3px 0 1px;font-variant-numeric:tabular-nums}
+.fs .s{font-size:11.5px;color:var(--muted);line-height:1.35}
+.fs.neg .v{color:var(--critical)}
+.bar.inv{background:var(--s-inflight);left:0;border-radius:4px 0 0 4px}
+.bar.com{background:color-mix(in srgb,var(--s-inflight) 38%,var(--surface))}
+.bar.pend{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--m-budget) 70%,transparent) 0 3px,transparent 3px 6px);border:1px solid var(--m-budget)}
+.bmark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);z-index:2;border-radius:1px}
+.vstat{display:flex;gap:2px;height:22px;margin:4px 0 6px}
+.vstat span{border-radius:4px;min-width:3px}
+.money-neg{color:var(--critical);font-weight:700}
 .minis{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .mini{flex:1;min-width:110px;background:var(--surface-2);border-radius:10px;padding:10px 12px}
 .mini b{display:block;font-size:22px;letter-spacing:-.01em}
@@ -188,14 +210,14 @@ main{max-width:1360px;margin:-34px auto 0;padding:0 32px 64px;position:relative;
 .w p{margin:0;font-size:12.5px;color:var(--ink-2)}
 .w ul{margin:8px 0 0;padding-left:16px;font-size:12.5px}
 .updates{list-style:none;margin:0;padding:0}
-.updates li{display:grid;grid-template-columns:104px 1fr;gap:16px;padding:13px 0;border-top:1px solid var(--grid);font-size:14px;line-height:1.55;color:var(--ink-2)}
+.updates li{display:grid;grid-template-columns:14px 1fr;gap:10px;padding:13px 0;border-top:1px solid var(--grid);font-size:14px;line-height:1.55;color:var(--ink-2)}
 .updates li:first-child{border-top:0;padding-top:2px}
 .updates li b{color:var(--ink);font-weight:650}
 .updates .sev{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);padding-top:3px}
 .updates .sev svg{width:14px;height:14px}
 .updates li.critical .sev svg{color:var(--critical)}
 .updates li.serious .sev svg{color:var(--serious)}
-@media (max-width:640px){.updates li{grid-template-columns:1fr;gap:4px}}
+.updates li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ink-2);margin-top:9px}
 .rolebar{display:grid;grid-template-columns:78px 1fr 64px;gap:8px;align-items:center;font-size:12px;color:var(--ink-2);margin-top:8px}
 .rolebar .meter{margin-top:0}
 .rolebar span:last-child{text-align:right;font-variant-numeric:tabular-nums}
@@ -247,7 +269,7 @@ footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);fon
     <div class="section-title"><h3>Key updates</h3></div>
     <div class="card span-12">
       <h2>Key updates for executive review</h2>
-      <div class="sub">Critical and serious matters only, summarised from the latest project, risk and issue, and resourcing data.</div>
+      <div class="sub">The most significant matters this period, summarised from the latest project, risk and issue, and resourcing data.</div>
       <ul class="updates" id="watch"></ul>
     </div>
 
@@ -270,7 +292,29 @@ footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);fon
     </div>
 
     <div class="section-title"><h3>Financials</h3></div>
-    <div class="card span-6">
+    <div class="card span-12">
+      <h2>Financial summary</h2>
+      <div class="sub">Active portfolio (in-flight and standby projects). Overall budget includes contingency and any approved budget increases.</div>
+      <div class="fstrip" id="fstrip"></div>
+    </div>
+    <div class="card span-7">
+      <h2>Commitments &amp; invoicing by project</h2>
+      <div class="sub">Each bar is scaled to that project's own overall budget, marked by the dark line. Pending variations are added after commitments to show the forecast position.</div>
+      <div class="rows" id="money"></div>
+      <div class="legend">
+        <span><i style="background:var(--s-inflight)"></i>Invoiced</span>
+        <span><i style="background:color-mix(in srgb,var(--s-inflight) 38%,var(--surface))"></i>Committed, not yet invoiced</span>
+        <span><i style="background:repeating-linear-gradient(45deg,var(--m-budget) 0 2px,transparent 2px 4px);outline:1px solid var(--m-budget)"></i>Pending variations</span>
+        <span><i style="background:var(--track)"></i>Uncommitted budget</span>
+        <span><i style="background:var(--ink);width:3px"></i>Overall budget</span>
+      </div>
+    </div>
+    <div class="card span-5">
+      <h2>Variations</h2>
+      <div class="sub">Value of variations by status, and those still awaiting a decision.</div>
+      <div id="vars"></div>
+    </div>
+    <div class="card span-12">
       <h2>Progress vs budget vs contingency</h2>
       <div class="sub">In-flight and standby projects. When a marker sits right of the progress dot, spend is running ahead of delivery.</div>
       <div class="rows" id="burn"></div>
@@ -280,20 +324,9 @@ footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);fon
         <span><i style="width:0;height:0;background:none;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid var(--m-cont);border-radius:0"></i>% contingency used</span>
       </div>
     </div>
-    <div class="card span-6">
-      <h2>Budget, contingency &amp; spend</h2>
-      <div class="sub">All projects with a budget. The grey bar is budget, the hatched box is contingency, and the solid fills are spend.</div>
-      <div class="rows" id="money"></div>
-      <div class="legend">
-        <span><i style="background:var(--track);outline:1px solid var(--axis)"></i>Budget</span>
-        <span><i style="background:var(--s-inflight)"></i>Budget spend</span>
-        <span><i style="background:var(--hatch);outline:1px dashed var(--m-cont)"></i>Contingency</span>
-        <span><i style="background:var(--m-cont)"></i>Contingency spend</span>
-        <span><i style="background:var(--critical)"></i>Overrun</span>
-      </div>
-    </div>
 
     <div class="section-title"><h3>Risks &amp; issues</h3></div>
+    <div class="rifbar" id="riFilters"></div>
     <div class="card span-5">
       <h2>Risk matrix</h2>
       <div class="sub">Open risks plotted by likelihood and consequence. Cell colour shows the rating zone.</div>
@@ -341,29 +374,29 @@ footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);fon
     </div>
   </div>
 </main>
-<footer>Example data for testing the merge. Use “Load updated CSVs” to swap in new versions of projects.csv, risks_issues.csv or resourcing.csv; each file is recognised by its columns.</footer>
+<footer>Example data for testing the merge. Use “Load updated CSVs” to swap in new versions of projects.csv, risks_issues.csv, resourcing.csv or variations.csv; each file is recognised by its columns.</footer>
 
 <div id="tip"></div>
 <div id="toast"></div>
 
 <script type="text/csv" id="csv-projects">
-project_id,project_name,status,phase,portfolio,sponsor,priority,start_date,target_end_date,actual_end_date,budget_aud,budget_spend_to_date_aud,contingency_aud,contingency_spend_to_date_aud,percent_complete,rag_status,status_reason,last_updated
-PRJ-001,EMR Upgrade v12,In-flight,5. Construction,Clinical Systems,Dr Helen Marsh (CMIO),High,2025-11-03,2027-03-31,,2400000,1310000,240000,110000,55,Amber,Vendor patch delays on integration build,2026-10-05
-PRJ-002,ePrescribing Rollout - Inpatient,In-flight,5. Construction,Medications,Karen Lowe (Director of Pharmacy),High,2025-07-14,2026-12-18,,1150000,920000,115000,62000,78,Green,Wards 1-6 live; wards 7-12 scheduled,2026-10-06
-PRJ-003,Telehealth Platform Expansion,In-flight,4. Tender,Digital Front Door,Michael Grant (COO),Medium,2026-02-02,2026-11-30,,680000,410000,68000,74000,62,Red,Privacy impact assessment outstanding,2026-10-02
-PRJ-004,PACS Migration to Cloud,In-flight,5. Construction,Diagnostics,Dr Anil Shah (Director of Radiology),High,2025-09-01,2027-01-29,,1850000,1240000,185000,150000,70,Amber,Image migration throughput below plan,2026-10-07
-PRJ-005,Sepsis Early Warning Alerts,In-flight,2. Detailed Design (DD),Clinical Decision Support,Dr Helen Marsh (CMIO),High,2026-05-11,2027-04-30,,520000,140000,52000,0,25,Green,Clinical rules workshop complete,2026-10-01
-PRJ-006,Theatre Scheduling Optimisation,In-flight,3. Contract Documents (CD),Perioperative,Jenny Hartley (Director of Surgery),Medium,2026-03-16,2027-02-26,,760000,330000,76000,18000,40,Amber,Surgeon engagement lower than expected,2026-09-29
-PRJ-007,Nurse Rostering System Replacement,Standby,4. Tender,Workforce,Fiona Reid (Director of Nursing),Medium,2025-10-06,2027-06-30,,950000,210000,95000,12000,18,Amber,Paused pending vendor procurement outcome,2026-09-15
-PRJ-008,Remote Patient Monitoring Pilot,Standby,1. Schematic Design (SD),Digital Front Door,Michael Grant (COO),Low,2026-04-06,2027-03-31,,430000,35000,43000,0,5,Amber,Funding deferred to FY28 budget cycle,2026-08-20
-PRJ-009,Allied Health e-Referrals,Standby,2. Detailed Design (DD),Community Health,Paul Osei (Director of Allied Health),Medium,2025-08-04,2026-12-11,,390000,180000,39000,21000,45,Red,On hold - interface engine capacity diverted to PACS,2026-09-22
-PRJ-010,Pathology Results Integration,Completed,6. Defects Liability Period (DLP),Diagnostics,Dr Anil Shah (Director of Radiology),High,2024-11-04,2025-12-19,2026-02-13,870000,905000,87000,87000,100,Green,Closed - benefits realisation tracking underway,2026-03-10
-PRJ-011,Electronic Discharge Summaries,Completed,6. Defects Liability Period (DLP),Clinical Systems,Dr Helen Marsh (CMIO),High,2025-02-03,2026-06-30,2026-06-26,540000,512000,54000,23000,100,Green,Closed on time and under budget,2026-07-14
-PRJ-012,Bed Management Dashboard,Completed,6. Defects Liability Period (DLP),Patient Flow,Michael Grant (COO),Medium,2025-06-02,2026-04-30,2026-05-29,310000,342000,31000,31000,100,Amber,Closed one month late with overspend,2026-06-19
-PRJ-013,Medication Reconciliation at Admission,Pipeline,1. Schematic Design (SD),Medications,Karen Lowe (Director of Pharmacy),High,2027-01-18,2027-10-29,,620000,12000,62000,0,0,Green,Business case in review,2026-10-03
-PRJ-014,Infection Control Surveillance,Pipeline,1. Schematic Design (SD),Clinical Decision Support,Dr Rachel Moore (Head of Infection Control),Medium,2027-02-01,2027-12-17,,480000,18000,48000,0,0,Green,Solution options paper drafted,2026-09-30
-PRJ-015,Patient Portal Self-Booking,Pipeline,1. Schematic Design (SD),Digital Front Door,Michael Grant (COO),Medium,2027-03-01,2028-02-25,,1100000,0,110000,0,0,Amber,Awaiting resourcing and funding approval,2026-09-12
-PRJ-016,Clinical Coding Automation,Pipeline,2. Detailed Design (DD),Health Information,Sandra Bell (Health Information Manager),Low,2027-01-11,2027-09-24,,560000,9000,56000,0,0,Green,Vendor demos scheduled,2026-10-06
+project_id,project_name,status,phase,portfolio,sponsor,priority,start_date,target_end_date,actual_end_date,size_category,budget_aud,budget_spend_to_date_aud,contingency_aud,contingency_spend_to_date_aud,overall_budget_aud,committed_aud,invoiced_aud,percent_complete,rag_status,status_reason,last_updated
+PRJ-001,EMR Upgrade v12,In-flight,5. Construction,Clinical Systems,Dr Helen Marsh (CMIO),High,2025-11-03,2027-03-31,,Major,4812500,2627600,481250,220400,5293750,4150000,2848000,55,Amber,Vendor patch delays on integration build,2026-10-05
+PRJ-002,ePrescribing Rollout - Inpatient,In-flight,5. Construction,Medications,Karen Lowe (Director of Pharmacy),High,2025-07-14,2026-12-18,,Medium,1168400,934700,93470,50500,1261870,1121000,985200,78,Green,Wards 1-6 live; wards 7-12 scheduled,2026-10-06
+PRJ-003,Telehealth Platform Expansion,In-flight,4. Tender,Digital Front Door,Michael Grant (COO),Medium,2026-02-02,2026-11-30,,Medium,684900,413000,61640,67200,746540,790000,480200,62,Red,Privacy impact assessment outstanding,2026-10-02
+PRJ-004,PACS Migration to Cloud,In-flight,5. Construction,Diagnostics,Dr Anil Shah (Director of Radiology),High,2025-09-01,2027-01-29,,Major,3726300,2496600,372630,301800,4098930,3880000,2798400,70,Amber,Image migration throughput below plan,2026-10-07
+PRJ-005,Sepsis Early Warning Alerts,In-flight,2. Detailed Design (DD),Clinical Decision Support,Dr Helen Marsh (CMIO),High,2026-05-11,2027-04-30,,Medium,517800,139800,62140,0,579940,310000,139800,25,Green,Clinical rules workshop complete,2026-10-01
+PRJ-006,Theatre Scheduling Optimisation,In-flight,3. Contract Documents (CD),Perioperative,Jenny Hartley (Director of Surgery),Medium,2026-03-16,2027-02-26,,Medium,763250,328200,76330,18100,839580,612000,346300,40,Amber,Surgeon engagement lower than expected,2026-09-29
+PRJ-007,Nurse Rostering System Replacement,Standby,4. Tender,Workforce,Fiona Reid (Director of Nursing),Medium,2025-10-06,2027-06-30,,Medium,948600,208700,113830,14400,1062430,402000,223100,18,Amber,Paused pending vendor procurement outcome,2026-09-15
+PRJ-008,Remote Patient Monitoring Pilot,Standby,1. Schematic Design (SD),Digital Front Door,Michael Grant (COO),Low,2026-04-06,2027-03-31,,Minor,94750,7900,4740,0,99490,21300,7900,5,Amber,Funding deferred to FY28 budget cycle,2026-08-20
+PRJ-009,Allied Health e-Referrals,Standby,2. Detailed Design (DD),Community Health,Paul Osei (Director of Allied Health),Medium,2025-08-04,2026-12-11,,Medium,386200,177650,38620,20850,424820,268400,198500,45,Red,On hold - interface engine capacity diverted to PACS,2026-09-22
+PRJ-010,Pathology Results Integration,Completed,6. Defects Liability Period (DLP),Diagnostics,Dr Anil Shah (Director of Radiology),High,2024-11-04,2025-12-19,2026-02-13,Medium,868300,904100,86830,86830,955130,990930,990930,100,Green,Closed - benefits realisation tracking underway,2026-03-10
+PRJ-011,Electronic Discharge Summaries,Completed,6. Defects Liability Period (DLP),Clinical Systems,Dr Helen Marsh (CMIO),High,2025-02-03,2026-06-30,2026-06-26,Medium,538700,510900,53870,22960,592570,533860,533860,100,Green,Closed on time and under budget,2026-07-14
+PRJ-012,Bed Management Dashboard,Completed,6. Defects Liability Period (DLP),Patient Flow,Michael Grant (COO),Medium,2025-06-02,2026-04-30,2026-05-29,Minor,91850,100900,9185,9185,101035,110085,110085,100,Amber,Closed one month late with overspend,2026-06-19
+PRJ-013,Medication Reconciliation at Admission,Pipeline,1. Schematic Design (SD),Medications,Karen Lowe (Director of Pharmacy),High,2027-01-18,2027-10-29,,Medium,618400,11900,92760,0,711160,24500,11900,0,Green,Business case in review,2026-10-03
+PRJ-014,Infection Control Surveillance,Pipeline,1. Schematic Design (SD),Clinical Decision Support,Dr Rachel Moore (Head of Infection Control),Medium,2027-02-01,2027-12-17,,Medium,482150,17800,72320,0,554470,31000,17800,0,Green,Solution options paper drafted,2026-09-30
+PRJ-015,Patient Portal Self-Booking,Pipeline,1. Schematic Design (SD),Digital Front Door,Michael Grant (COO),Medium,2027-03-01,2028-02-25,,Major,3412000,0,511800,0,3923800,0,0,0,Amber,Awaiting resourcing and funding approval,2026-09-12
+PRJ-016,Clinical Coding Automation,Pipeline,2. Detailed Design (DD),Health Information,Sandra Bell (Health Information Manager),Low,2027-01-11,2027-09-24,,Minor,84600,1450,8460,0,93060,6200,1450,0,Green,Vendor demos scheduled,2026-10-06
 </script>
 <script type="text/csv" id="csv-raidd">
 item_id,project_id,type,title,description,category,owner,raised_date,target_date,status,likelihood,consequence,risk_score,rating,trend,response
@@ -446,6 +479,32 @@ AL-039,PRJ-007,CAPPM-03,Olivia Grant,Capital PM,0.1,3.8,2025-10-06,2027-06-30,Re
 AL-040,PRJ-012,CAPPM-03,Olivia Grant,Capital PM,0.1,3.8,2025-06-02,2027-05-28,Active
 AL-041,PRJ-016,CAPPM-03,Olivia Grant,Capital PM,0.2,7.6,2026-08-17,2027-09-24,Active
 </script>
+<script type="text/csv" id="csv-variations">
+variation_id,project_id,title,reason,status,value_aud,funding_source,raised_date,decision_date
+VAR-001,PRJ-001,Additional pharmacy system interface,Scope change,Approved,96400,Contingency,2026-04-14,2026-05-02
+VAR-002,PRJ-001,Extended vendor support during v12.2 delay,Delay,Approved,124000,Contingency,2026-07-21,2026-08-11
+VAR-003,PRJ-001,Super-user training backfill,Client request,Under review,85000,TBC,2026-09-08,
+VAR-004,PRJ-001,Network cutover re-sequencing,Delay,Proposed,140000,TBC,2026-09-29,
+VAR-005,PRJ-002,Additional workstations-on-wheels for wards 9-10,Scope change,Approved,50500,Contingency,2026-09-22,2026-09-30
+VAR-006,PRJ-002,Extended locum pharmacist backfill,Client request,Under review,38000,TBC,2026-09-25,
+VAR-007,PRJ-003,Additional video consultation licences,Scope change,Approved,67200,Contingency,2026-08-03,2026-08-24
+VAR-008,PRJ-003,Privacy remediation consultancy,Compliance,Under review,42000,TBC,2026-09-16,
+VAR-009,PRJ-003,Identity service integration redesign,Design change,Proposed,55000,Budget increase,2026-10-01,
+VAR-010,PRJ-004,Second image migration node,Delay,Approved,188000,Contingency,2026-08-27,2026-09-10
+VAR-011,PRJ-004,Extended dual-running of on-premise PACS,Design change,Approved,113800,Contingency,2026-05-06,2026-05-20
+VAR-012,PRJ-004,Additional cutover weekend,Delay,Under review,96000,TBC,2026-09-30,
+VAR-013,PRJ-005,ICU alert threshold tuning study,Design change,Proposed,28000,TBC,2026-09-18,
+VAR-014,PRJ-006,Anaesthetics interface specification,Latent condition,Approved,18100,Contingency,2026-06-02,2026-06-16
+VAR-015,PRJ-006,Additional surgeon design workshops,Client request,Rejected,22000,,2026-08-10,2026-08-24
+VAR-016,PRJ-007,Tender re-issue costs,Delay,Approved,14400,Contingency,2026-08-20,2026-09-03
+VAR-017,PRJ-007,Extended support for legacy rostering system,Delay,Under review,120000,TBC,2026-09-14,
+VAR-018,PRJ-009,Interface build re-plan,Delay,Approved,20850,Contingency,2026-09-03,2026-09-17
+VAR-019,PRJ-010,Additional result-routing rules,Scope change,Approved,86830,Contingency,2025-09-15,2025-10-01
+VAR-020,PRJ-010,Overrun funded by budget supplementation,Scope change,Approved,35800,Budget increase,2026-01-20,2026-02-04
+VAR-021,PRJ-011,GP summary format changes,Design change,Approved,22960,Contingency,2026-03-10,2026-03-24
+VAR-022,PRJ-012,ADT feed rework,Latent condition,Approved,9185,Contingency,2026-03-05,2026-03-18
+VAR-023,PRJ-012,Go-live extension costs,Delay,Approved,9050,Budget increase,2026-04-09,2026-04-15
+</script>
 
 <script>
 /* ================= data ================= */
@@ -465,9 +524,10 @@ function parseCSV(t){
 const D={
   projects:parseCSV(document.getElementById('csv-projects').textContent.trim()),
   raidd:parseCSV(document.getElementById('csv-raidd').textContent.trim()),
-  resourcing:parseCSV(document.getElementById('csv-resourcing').textContent.trim())
+  resourcing:parseCSV(document.getElementById('csv-resourcing').textContent.trim()),
+  variations:parseCSV(document.getElementById('csv-variations').textContent.trim())
 };
-const SRC={projects:'projects.csv',raidd:'risks_issues.csv',resourcing:'resourcing.csv'};
+const SRC={projects:'projects.csv',raidd:'risks_issues.csv',resourcing:'resourcing.csv',variations:'variations.csv'};
 const LIK=['Rare','Unlikely','Possible','Likely','Almost certain'],CON=['Insignificant','Minor','Moderate','Major','Severe'];
 const RATES=['Low','Medium','High','Extreme'];
 
@@ -475,6 +535,8 @@ const RATES=['Low','Medium','High','Extreme'];
 const STATUSES=['In-flight','Standby','Pipeline','Completed'];
 const SCOL={'In-flight':'var(--s-inflight)','Standby':'var(--s-standby)','Completed':'var(--s-completed)','Pipeline':'var(--s-pipeline)'};
 const RCOL={Green:'var(--good)',Amber:'var(--warning)',Red:'var(--critical)'};
+const SIZES=['Major','Medium','Minor'];
+const sizeOf=(b,lbl)=>lbl&&SIZES.includes(lbl)?lbl:(b>3e6?'Major':b>1e5?'Medium':'Minor');
 const PHASES=['1. Schematic Design (SD)','2. Detailed Design (DD)','3. Contract Documents (CD)','4. Tender','5. Construction','6. Defects Liability Period (DLP)'];
 const n=v=>{const x=parseFloat(v);return isNaN(x)?0:x};
 const d=v=>v?new Date(v+'T00:00:00'):null;
@@ -495,23 +557,36 @@ const ICON={
 function model(){
   const P=D.projects.map(p=>{
     const budget=n(p.budget_aud), spend=n(p.budget_spend_to_date_aud??p.spend_to_date_aud), cont=n(p.contingency_aud), cspend=n(p.contingency_spend_to_date_aud);
-    return {...p,budget,spend,cont,cspend,complete:n(p.percent_complete)/100,
+    return {...p,budget,spend,cont,cspend,size:sizeOf(budget,p.size_category),complete:n(p.percent_complete)/100,
       bPct:budget?spend/budget:NaN,cPct:cont?cspend/cont:NaN,
       start:d(p.start_date),end:d(p.target_end_date),actualEnd:d(p.actual_end_date)};
+  });
+  const V=(D.variations||[]).map(v=>({...v,value:n(v.value_aud),raised:d(v.raised_date)}));
+  const hasV=V.length>0, vsum=a=>a.reduce((s,v)=>s+v.value,0);
+  P.forEach(p=>{
+    const vs=V.filter(v=>v.project_id===p.project_id);
+    p.vApproved=vs.filter(v=>/approved/i.test(v.status));p.vPending=vs.filter(v=>/proposed|review|pending|submitted/i.test(v.status));
+    p.apprCont=vsum(p.vApproved.filter(v=>/contingency/i.test(v.funding_source)));p.apprInc=vsum(p.vApproved.filter(v=>/increase|supplement/i.test(v.funding_source)));
+    p.pendingVal=vsum(p.vPending);
+    p.overall=(n(p.overall_budget_aud)||p.budget+p.cont)+p.apprInc;
+    p.committed=n(p.committed_aud)||p.spend+p.cspend; p.invoiced=n(p.invoiced_aud)||p.spend+p.cspend;
+    p.contRemain=p.cont-(hasV?p.apprCont:p.cspend);
+    p.forecast=Math.max(p.committed,p.invoiced)+p.pendingVal; p.headroom=p.overall-p.forecast;
+    p.comPct=p.overall?p.committed/p.overall:NaN; p.invPct=p.overall?p.invoiced/p.overall:NaN;
   });
   const byId=Object.fromEntries(P.map(p=>[p.project_id,p]));
   const ref=new Date(Math.max(...P.map(p=>+d(p.last_updated)||0)));
   const R=D.raidd.filter(r=>!r.type||/risk|issue/i.test(r.type)).map(r=>({...r,due:d(r.target_date||r.due_date),raised:d(r.raised_date),severity:r.rating||r.severity,open:r.status!=='Closed',L:LIK.indexOf(r.likelihood)+1,C:CON.indexOf(r.consequence)+1}));
   const A=D.resourcing.map(a=>({...a,fte:n(a.fte_allocation),s:d(a.allocation_start),e:d(a.allocation_end)}));
   const cur=A.filter(a=>a.s<=ref&&a.e>=ref&&!/ended/i.test(a.allocation_status));
-  return {P,byId,ref,R,A,cur};
+  return {P,byId,ref,R,A,cur,V};
 }
 
 /* ================= render ================= */
 function render(){
   const M=model();const {P,byId,ref,R,cur}=M;
   document.getElementById('repDate').textContent='Reporting date · '+fmtD(ref);
-  document.getElementById('srcInfo').textContent=`${P.length} projects · ${R.filter(r=>r.type==='Risk').length} risks · ${R.filter(r=>r.type==='Issue').length} issues · ${M.A.length} allocations`;
+  document.getElementById('srcInfo').textContent=`${P.length} projects · ${R.filter(r=>r.type==='Risk').length} risks · ${R.filter(r=>r.type==='Issue').length} issues · ${M.A.length} allocations · ${M.V.length} variations`;
 
   /* ---- KPIs ---- */
   const cnt=s=>P.filter(p=>p.status===s).length;
@@ -536,7 +611,8 @@ function render(){
   const k=[];
   k.push(`<div class="card kpi span-4"><div class="label">Projects in portfolio</div><div class="value">${P.length}</div>
     <div class="status-split">${STATUSES.map(s=>`<span style="flex:${cnt(s)};background:${SCOL[s]}" ${tipAttr(s,[['Projects',cnt(s)]])}></span>`).join('')}</div>
-    <div class="legend" style="margin-top:8px">${STATUSES.map(s=>`<span><i style="background:${SCOL[s]}"></i>${s} ${cnt(s)}</span>`).join('')}</div></div>`);
+    <div class="legend" style="margin-top:8px">${STATUSES.map(s=>`<span><i style="background:${SCOL[s]}"></i>${s} ${cnt(s)}</span>`).join('')}</div>
+    <div class="legend" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--grid)">${SIZES.map(z=>`<span ${tipAttr(z+' projects',[[z==='Major'?'Budget over $3m':z==='Medium'?'Budget $100k–$3m':'Budget up to $100k',''],...P.filter(p=>p.size===z).map(p=>[shortName(p.project_name),money(p.budget)])])}><span class="size">${z}</span> ${P.filter(p=>p.size===z).length}</span>`).join('')}</div></div>`);
   k.push(`<div class="card kpi span-4"><div class="label">In-flight projects on schedule</div><div class="value">${onTime.length} <span style="font-size:18px;color:var(--muted);font-weight:600">of ${flS2.length}</span></div>
     <div class="note">Progress compared with the share of each project's timeline already elapsed</div>
     <div class="status-split">${['Green','Amber','Red'].map(r=>{const x=flS2.filter(p=>p.sched.rag===r);return x.length?`<span style="flex:${x.length};background:${RCOL[r]}" ${tipAttr('Schedule: '+r,x.map(p=>[shortName(p.project_name),pct(p.complete)+' done, '+pct(p.sched.el)+' elapsed']))}></span>`:''}).join('')}</div>
@@ -544,9 +620,10 @@ function render(){
   k.push(`<div class="card kpi span-4"><div class="label">PM capacity allocated</div><div class="value">${pct(allocT/capT)}</div>
     <div class="note">${allocT.toFixed(1)} of ${capT.toFixed(1)} FTE allocated · ${over.length} PM${over.length===1?'':'s'} over 1.0 FTE</div>
     ${[...new Set(M.A.map(a=>a.role))].map(r=>{const c=roleCap(r);return `<div class="rolebar" ${tipAttr(r,roster.filter(x=>x.role===r).map(x=>[x.nm,x.t.toFixed(1)+' FTE']))}><span>${r}</span><div class="meter"><span style="width:${Math.min(100,c.a/c.n*100)}%;background:${meterCol(c.a/c.n)}"></span></div><span>${c.a.toFixed(1)} / ${c.n.toFixed(1)}</span></div>`}).join('')}</div>`);
-  k.push(`<div class="card kpi span-4"><div class="label">In-flight budget spent</div><div class="value">${money(flS)}</div>
-    <div class="note">of ${money(flB)} budget · ${pct(flS/flB)} spent</div>
-    <div class="meter"><span style="width:${Math.min(100,flS/flB*100)}%;background:var(--s-inflight)"></span></div></div>`);
+  const flO=sum(fl,'overall'),flCm=sum(fl,'committed'),flI=sum(fl,'invoiced');
+  k.push(`<div class="card kpi span-4"><div class="label">In-flight committed</div><div class="value">${money(flCm)}</div>
+    <div class="note">of ${money(flO)} overall budget · ${money(flI)} invoiced (${pct(flI/flO)})</div>
+    <div class="meter"><span style="width:${Math.min(100,flI/flO*100)}%;background:var(--s-inflight)"></span><span style="width:${Math.max(0,Math.min(100,(flCm-flI)/flO*100))}%;background:color-mix(in srgb,var(--s-inflight) 38%,var(--surface))"></span></div></div>`);
   k.push(`<div class="card kpi span-4"><div class="label">Contingency drawn (in-flight + standby)</div><div class="value">${money(lCS)}</div>
     <div class="note">of ${money(lC)} held · ${pct(lCS/lC)} drawn</div>
     <div class="meter"><span style="width:${Math.min(100,lCS/lC*100)}%;background:var(--m-cont)"></span></div></div>`);
@@ -565,7 +642,11 @@ function render(){
   const redP=live.filter(p=>p.rag_status==='Red');
   if(redP.length)U.push({sev:'critical',h:`<b>${wordN(redP.length).replace(/^./,c=>c.toUpperCase())} of ${live.length} active projects ${redP.length===1?'is':'are'} rated Red.</b> ${join(redP.map(p=>`${esc(p.project_name)} (${esc(lc(p.status_reason.replace(/^On hold - /i,'on hold, ')))})`))}. ${redP.length===1?'It needs':'Each needs'} a recovery plan or an escalation decision.`});
   const overC=P.filter(p=>p.status!=='Completed'&&p.cont&&p.cspend>p.cont);
-  if(overC.length)U.push({sev:'critical',h:overC.length===1?`<b>${esc(overC[0].project_name)} has exceeded its approved contingency</b>, with ${money(overC[0].cspend)} drawn against ${money(overC[0].cont)} (${pct(overC[0].cPct)}). A budget variation will be required.`:`<b>${overC.length} projects have exceeded their approved contingency</b> (${join(overC.map(p=>esc(p.project_name)))}). Budget variations will be required.`});
+  if(overC.length)U.push({sev:'critical',h:overC.length===1?`<b>${esc(overC[0].project_name)} has exceeded its approved contingency</b>, with ${money(overC[0].cspend)} drawn against ${money(overC[0].cont)} (${pct(overC[0].cPct)}).${overC[0].headroom<0?` Commitments plus pending variations put it ${money(-overC[0].headroom)} over its overall budget.`:''} A budget variation will be required.`:`<b>${overC.length} projects have exceeded their approved contingency</b> (${join(overC.map(p=>esc(p.project_name)))}). Budget variations will be required.`});
+  const fo=live.filter(p=>p.headroom<0&&!overC.includes(p));
+  if(fo.length)U.push({sev:'critical',h:`<b>${fo.length===1?esc(fo[0].project_name)+' is':fo.length+' projects are'} forecast to exceed ${fo.length===1?'its':'their'} overall budget</b> once commitments and pending variations are included${fo.length>1?': '+join(fo.map(p=>`${esc(p.project_name)} (${money(-p.headroom)})`)):` by ${money(-fo[0].headroom)}`}.`});
+  const pend=live.filter(p=>p.pendingVal>0), pendX=pend.filter(p=>p.pendingVal>p.contRemain&&!overC.includes(p));
+  if(pend.length)U.push({sev:'serious',h:`<b>${money(pend.reduce((s,p)=>s+p.pendingVal,0))} of variations ${pend.reduce((s,p)=>s+p.vPending.length,0)>1?'are':'is'} awaiting a decision across ${pend.length} project${pend.length>1?'s':''}.</b>${pendX.length?` On ${join(pendX.map(p=>esc(p.project_name)))} they exceed the remaining contingency, so approval would need additional funding.`:' These can be absorbed within remaining contingency.'}`});
   if(extRisks.length){const inc=extRisks.filter(r=>/increas/i.test(r.trend)).length;U.push({sev:'critical',h:`<b>${extRisks.length} risk${extRisks.length>1?'s are':' is'} rated Extreme.</b> ${join(extRisks.map(r=>`${esc(lc(r.title))} on ${esc(byId[r.project_id]?.project_name||'')}`)).replace(/^./,c=>c.toUpperCase())}. ${inc===extRisks.length?(inc>1?'Both are':'It is')+' trending upward':inc?inc+' of these '+(inc>1?'are':'is')+' trending upward':'Ratings are stable'}, so treatment plans should be confirmed with sponsors.`.replace('Both are',extRisks.length>2?'All are':'Both are')})}
   if(overdue.length)U.push({sev:'critical',h:`<b>${overdue.length} risk${overdue.length>1?'s and issues are':' or issue is'} past ${overdue.length>1?'their':'its'} target date</b> across ${new Set(overdue.map(r=>r.project_id)).size} project${new Set(overdue.map(r=>r.project_id)).size>1?'s':''} and need${overdue.length>1?'':'s'} an owner update.`});
   const schedRed=flS2.filter(p=>p.sched.rag==='Red'), schedAmb=flS2.filter(p=>p.sched.rag==='Amber');
@@ -592,7 +673,7 @@ function render(){
   const soonHigh=openHigh.filter(r=>r.due&&r.due>=ref&&days(ref,r.due)<=30).sort((a,b)=>a.due-b.due);
   if(soonHigh.length){const f=soonHigh[0];U.push({sev:'serious',h:`<b>${wordN(soonHigh.length).replace(/^./,c=>c.toUpperCase())} high-rated risk${soonHigh.length>1?'s and issues reach their':' or issue reaches its'} target date in the next 30 days.</b> The most urgent, due ${fmtD(f.due).replace(/ \d{4}$/,'')}, is “${esc(f.title)}” on ${esc(byId[f.project_id]?.project_name||'')}.`});}
   const order={critical:0,serious:1};U.sort((a,b)=>order[a.sev]-order[b.sev]);
-  document.getElementById('watch').innerHTML=U.length?U.map(u=>`<li class="${u.sev}"><span class="sev">${ICON[u.sev]}${u.sev}</span><div>${u.h}</div></li>`).join(''):'<li><span></span><div>No critical or serious matters this period.</div></li>';
+  document.getElementById('watch').innerHTML=U.length?U.map(u=>`<li><div>${u.h}</div></li>`).join(''):'<li><div>No significant matters to report this period.</div></li>';
 
   /* ---- Phases ---- */
   const phs=[...new Set(PHASES.concat(P.map(p=>p.phase)))].sort();
@@ -600,7 +681,7 @@ function render(){
     const ps=P.filter(p=>p.phase===ph).sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status));
     const m=ph.match(/^(\d+)\.\s*(.*)$/);
     return `<div class="phase"><div class="phase-head"><div><div class="phase-num">PHASE ${m?m[1]:''}</div><div class="phase-name">${esc(m?m[2]:ph)}</div></div><div class="phase-count">${ps.length}</div></div>
-      ${ps.map(p=>`<span class="chip" style="border-left-color:${RCOL[p.rag_status]||'var(--axis)'}" ${tipAttr(p.project_name,[['Status',p.status],['RAG',p.rag_status],['Complete',pct(p.complete)],['Budget',money(p.budget)],['Sponsor',p.sponsor]])}><b>${esc(shortName(p.project_name))}</b><small>${p.status}</small></span>`).join('')}</div>`;
+      ${ps.map(p=>`<span class="chip" style="border-left-color:${RCOL[p.rag_status]||'var(--axis)'}" ${tipAttr(p.project_name,[['Status',p.status],['RAG',p.rag_status],['Complete',pct(p.complete)],['Budget',money(p.budget)],['Sponsor',p.sponsor]])}><b>${esc(shortName(p.project_name))}</b><small>${p.status} · ${p.size}</small></span>`).join('')}</div>`;
   }).join('');
   document.getElementById('statusLegend').innerHTML=`<span>Card edge:</span>${['Green','Amber','Red'].map(r=>`<span><span class="rag ${r}">${r}</span></span>`).join('')}`;
 
@@ -630,51 +711,47 @@ function render(){
       </div><div class="val"><span class="rag ${p.rag_status}">${p.rag_status}</span></div></div>`}).join('');
   document.getElementById('burn').innerHTML=`<div class="axisrow"><div></div><div class="ticks">${tk.map(t=>`<span style="left:${xP(t)}%">${Math.round(t*100)}%</span>`).join('')}</div><div></div></div>`+burnRows;
 
-  /* ---- Money bars ---- */
-  const mp=P.filter(p=>p.budget).sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status)||b.budget-a.budget);
-  const mx=Math.max(...mp.map(p=>Math.max(p.budget+p.cont,p.spend+p.cont)));
-  const xm=v=>v/mx*100;
-  document.getElementById('money').innerHTML=mp.map(p=>{
-    const overS=Math.max(0,p.spend-p.budget), sp=Math.min(p.spend,p.budget);
-    const cs=Math.min(p.cspend,p.cont), overCs=Math.max(0,p.cspend-p.cont);
-    return `<div class="drow" ${tipAttr(p.project_name,[['Status',p.status],['Budget',money(p.budget)],['Budget spend',money(p.spend)+' ('+pct(p.bPct)+')'],['Contingency',money(p.cont)],['Contingency spend',money(p.cspend)+' ('+pct(p.cPct)+')']])}>
-      <div class="name">${esc(shortName(p.project_name))}<small><span class="dot" style="background:${SCOL[p.status]}"></span> ${p.status}</small></div>
-      <div class="track">
-        <span class="bar budget" style="width:${xm(p.budget)}%"></span>
-        <span class="bar spend" style="width:${xm(sp)}%"></span>
-        ${overS?`<span class="bar over" style="left:${xm(p.budget)}%;width:${xm(overS)}%;border-radius:0 4px 4px 0"></span>`:''}
-        ${p.cont?`<span class="bar contbox" style="left:calc(${xm(p.budget+overS)}% + 2px);width:${xm(p.cont)}%"></span>`:''}
-        ${cs?`<span class="bar contspend" style="left:calc(${xm(p.budget+overS)}% + 2px);width:${xm(cs)}%"></span>`:''}
-        ${overCs?`<span class="bar over" style="left:calc(${xm(p.budget+overS+p.cont)}% + 2px);width:${xm(overCs)}%"></span>`:''}
-      </div><div class="val">${money(p.spend+p.cspend)}<br><span style="color:var(--muted)">of ${money(p.budget+p.cont)}</span></div></div>`}).join('');
+  /* ---- Financial summary ---- */
+  const act=live, sumA=k=>act.reduce((s,p)=>s+p[k],0);
+  const aO=sumA('overall'),aB=sumA('budget'),aC=sumA('cont'),aCm=sumA('committed'),aI=sumA('invoiced'),aPend=sumA('pendingVal'),aHead=sumA('headroom');
+  const apprV=act.flatMap(p=>p.vApproved), pendV=act.flatMap(p=>p.vPending);
+  const vs2=a=>a.reduce((s,v)=>s+v.value,0);
+  const pendOver=act.filter(p=>p.pendingVal>p.contRemain).length;
+  const fsd=[
+    ['Overall budget',money(aO),`${money(aB)} base + ${money(aC)} contingency`],
+    ['Committed',money(aCm),`${pct(aCm/aO)} of overall budget`],
+    ['Invoiced',money(aI),`${pct(aI/aO)} of budget · ${pct(aI/aCm)} of commitments`],
+    ['Approved variations',money(vs2(apprV)),`${apprV.length} variation${apprV.length===1?'':'s'} · ${money(vs2(apprV.filter(v=>/contingency/i.test(v.funding_source))))} from contingency`],
+    ['Pending variations',money(aPend),`${pendV.length} awaiting decision${pendOver?` · ${pendOver} exceed${pendOver===1?'s':''} remaining contingency`:''}`],
+    [aHead>=0?'Uncommitted headroom':'Forecast overrun',money(Math.abs(aHead)),'Overall budget less commitments and pending variations',aHead<0]];
+  document.getElementById('fstrip').innerHTML=fsd.map(([l,v,s,neg])=>`<div class="fs ${neg?'neg':''}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
 
-  /* ---- Risks & issues ---- */
-  const due60=openR.filter(r=>r.due&&days(ref,r.due)<=60).sort((a,b)=>a.due-b.due);
-  const zone=s=>s<=4?'Low':s<=9?'Medium':s<=16?'High':'Extreme';
-  let mh=`<div class="ttl l">Likelihood ↓ · Consequence →</div>`;
-  for(let l=5;l>=1;l--){
-    mh+=`<div class="ax">${LIK[l-1]}</div>`;
-    for(let c=1;c<=5;c++){const x=openRisks.filter(r=>r.L===l&&r.C===c);
-      mh+=`<div class="mc z-${zone(l*c)} ${x.length?'on':''}" ${x.length?tipAttr(`${LIK[l-1]} × ${CON[c-1]} · ${zone(l*c)}`,x.map(r=>[shortName(r.title),shortName(byId[r.project_id]?.project_name||'')])):''}>${x.length||''}</div>`}
-  }
-  mh+=`<div></div>${CON.map(c=>`<div class="ax axb">${c}</div>`).join('')}`;
-  document.getElementById('matrix').innerHTML=mh;
-  document.getElementById('raiddMinis').innerHTML=[[openRisks.length,'Open risks'],[hiRisks.length,'High or extreme'],[openIssues.length,'Open issues'],[hiIssues.length,'High issues'],[overdue.length,'Past target']].map(([v,l])=>`<div class="mini"><b>${v}</b><span>${l}</span></div>`).join('');
-  const rk=r=>RATES.indexOf(r);
-  const rp=P.map(p=>{const rs=openRisks.filter(r=>r.project_id===p.project_id),is=openIssues.filter(r=>r.project_id===p.project_id);
-    const top=rs.reduce((m,r)=>rk(r.severity)>rk(m)?r.severity:m,'');const inc=rs.concat(is).filter(r=>/increas/i.test(r.trend)).length;
-    const expo=rs.reduce((s,r)=>s+(+r.risk_score||0),0)+is.reduce((s,r)=>s+(r.severity==='High'?16:r.severity==='Medium'?9:4),0);
-    return {p,rs,is,top,inc,expo}}).filter(x=>x.rs.length||x.is.length).sort((a,b)=>b.expo-a.expo);
-  document.getElementById('riTable').innerHTML=`<thead><tr><th>Project</th><th class="num">Risks</th><th>Highest risk</th><th class="num">Issues</th><th class="num">High issues</th><th class="num">Rising</th></tr></thead><tbody>${rp.map(x=>`<tr>
-    <td><b>${esc(x.p.project_name)}</b><br><span class="rag ${x.p.rag_status}">${x.p.rag_status}</span></td>
-    <td class="num" ${x.rs.length?tipAttr('Open risks',x.rs.map(r=>[shortName(r.title),r.severity])):''}>${x.rs.length||'—'}</td>
-    <td>${x.top?`<span class="rate ${x.top}">${x.top}</span>`:'—'}</td>
-    <td class="num" ${x.is.length?tipAttr('Open issues',x.is.map(r=>[shortName(r.title),r.severity])):''}>${x.is.length||'—'}</td>
-    <td class="num">${x.is.filter(r=>r.severity==='High').length?`<span class="rate High">${x.is.filter(r=>r.severity==='High').length}</span>`:'—'}</td>
-    <td class="num" style="${x.inc?'color:var(--critical);font-weight:700':''}">${x.inc?x.inc+' ▲':'—'}</td></tr>`).join('')}</tbody>`;
-  document.getElementById('due').innerHTML=due60.length?due60.map(r=>`<div class="li"><div class="due">${fmtD(r.due).replace(/ \d{4}$/,'')}<small>${days(ref,r.due)<0?Math.abs(days(ref,r.due))+'d overdue':'in '+days(ref,r.due)+'d'}</small></div>
-    <div><b>${esc(r.title)}</b><small>${esc(byId[r.project_id]?.project_name||'')} · ${esc(r.owner)}${r.response?' · '+esc(r.response):''}</small></div>
-    <div style="text-align:right"><span class="tag">${r.type}</span><br><span class="rate ${r.severity}" style="margin-top:4px">${r.severity}</span></div></div>`).join(''):'<p class="sub">Nothing due.</p>';
+  const mp=P.filter(p=>p.overall&&p.status!=='Pipeline').sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status)||a.headroom/a.overall-b.headroom/b.overall);
+  const fmax=Math.max(1.25,...mp.map(p=>p.forecast/p.overall))+0.02;
+  const xf=v=>Math.max(0,v)/fmax*100;
+  const ftk=[0,.25,.5,.75,1].concat(fmax>1.3?[1.25]:[]);
+  document.getElementById('money').innerHTML=`<div class="axisrow"><div></div><div class="ticks">${ftk.map(t=>`<span style="left:${xf(t)}%">${Math.round(t*100)}%</span>`).join('')}</div><div></div></div>`+mp.map(p=>{
+    const i=p.invoiced/p.overall,c=Math.max(p.committed,p.invoiced)/p.overall,f=p.forecast/p.overall;
+    return `<div class="drow" ${tipAttr(p.project_name,[['Status',p.status+' · '+p.size],['Overall budget',money(p.overall)],['Committed',money(p.committed)+' ('+pct(p.comPct)+')'],['Invoiced',money(p.invoiced)+' ('+pct(p.invPct)+')'],['Pending variations',money(p.pendingVal)],['Contingency remaining',money(p.contRemain)],[p.headroom>=0?'Headroom':'Forecast overrun',money(Math.abs(p.headroom))]])}>
+      <div class="name">${esc(shortName(p.project_name))}<small>${p.status} · ${p.size}</small></div>
+      <div class="track">
+        <span class="bar budget" style="width:${xf(1)}%;border-radius:4px"></span>
+        <span class="bar com" style="left:0;width:${xf(c)}%;border-radius:4px"></span>
+        <span class="bar inv" style="width:${xf(i)}%"></span>
+        ${p.pendingVal?`<span class="bar pend" style="left:${xf(c)}%;width:${xf(f)-xf(c)}%"></span>`:''}
+        <span class="bmark" style="left:calc(${xf(1)}% - 1px)"></span>
+      </div><div class="val">${money(p.committed)}<br><span class="${p.headroom<0?'money-neg':''}" style="${p.headroom<0?'':'color:var(--muted)'}">${p.headroom<0?money(-p.headroom)+' over':'of '+money(p.overall)}</span></div></div>`}).join('');
+
+  /* ---- Variations ---- */
+  const VST=[['Approved','var(--s-inflight)'],['Under review','var(--m-budget)'],['Proposed','var(--s-pipeline)'],['Rejected','var(--axis)']];
+  const allV=M.V.filter(v=>byId[v.project_id]);
+  const openV=allV.filter(v=>/proposed|review|pending|submitted/i.test(v.status)).sort((a,b)=>b.value-a.value);
+  document.getElementById('vars').innerHTML=allV.length?`<div class="vstat">${VST.map(([s,c])=>{const x=allV.filter(v=>v.status===s);return x.length?`<span style="flex:${vs2(x)};background:${c}" ${tipAttr(s,[['Count',x.length],['Value',money(vs2(x))]])}></span>`:''}).join('')}</div>
+    <div class="legend" style="margin:0 0 14px">${VST.map(([s,c])=>{const x=allV.filter(v=>v.status===s);return `<span><i style="background:${c}"></i>${s} ${money(vs2(x))} (${x.length})</span>`}).join('')}</div>
+    <div class="list">${openV.map(v=>{const p=byId[v.project_id];const x=p.pendingVal>p.contRemain;return `<div class="li" style="grid-template-columns:1fr auto"><div><b>${esc(v.title)}</b><small>${esc(p.project_name)} · ${esc(v.reason||'')} · raised ${fmtD(v.raised).replace(/ \d{4}$/,'')}</small>${x?`<span class="flag crit" style="margin:4px 0 0">Exceeds remaining contingency (${money(Math.max(0,p.contRemain))} left)</span>`:''}</div>
+      <div style="text-align:right"><b style="font-variant-numeric:tabular-nums">${money(v.value)}</b><br><span class="tag" style="margin-top:4px">${esc(v.status)}</span></div></div>`}).join('')||'<p class="sub">No variations awaiting decision.</p>'}</div>`:'<p class="sub">Load variations.csv to see variations.</p>';
+
+  renderRI(M);
 
   /* ---- Capacity ---- */
   const ppl=[...new Set(M.A.map(a=>a.person_name))].map(nm=>{const a=cur.filter(x=>x.person_name===nm);const any=M.A.find(x=>x.person_name===nm);return {nm,role:any.role,a,t:a.reduce((s,x)=>s+x.fte,0)}}).sort((a,b)=>a.role.localeCompare(b.role)||b.t-a.t);
@@ -713,31 +790,86 @@ function render(){
   renderTable(M);
 }
 
+
+/* ---- Risks & issues (filterable) ---- */
+let RIF={type:'All',cat:'All'};
+function renderRI(M){
+  M=M||model();const {P,byId,ref,R}=M;
+  const cats=[...new Set(R.filter(r=>r.open).map(r=>r.category).filter(Boolean))].sort();
+  if(RIF.cat!=='All'&&!cats.includes(RIF.cat))RIF.cat='All';
+  const pass=r=>(RIF.type==='All'||r.type===RIF.type)&&(RIF.cat==='All'||r.category===RIF.cat);
+  const openAll=R.filter(r=>r.open);
+  const openR=openAll.filter(pass);
+  const openRisks=openR.filter(r=>r.type==='Risk'), openIssues=openR.filter(r=>r.type==='Issue');
+  const hiRisks=openRisks.filter(r=>/high|extreme/i.test(r.severity)), hiIssues=openIssues.filter(r=>/high|critical/i.test(r.severity));
+  const overdue=openR.filter(r=>r.due&&r.due<ref);
+  const tc=ty=>openAll.filter(r=>(ty==='All'||r.type===ty)&&(RIF.cat==='All'||r.category===RIF.cat)).length;
+  document.getElementById('riFilters').innerHTML=`<div class="grp"><span class="lab">Type</span>${[['All','All'],['Risk','Risks'],['Issue','Issues']].map(([v,l])=>`<button class="fbtn" data-rt="${v}" aria-pressed="${RIF.type===v}">${l} · ${tc(v)}</button>`).join('')}</div>
+    <div class="grp"><span class="lab">Category</span><select id="riCat"><option value="All">All categories</option>${cats.map(c=>`<option ${RIF.cat===c?'selected':''} value="${esc(c)}">${esc(c)} (${openAll.filter(r=>r.category===c&&(RIF.type==='All'||r.type===RIF.type)).length})</option>`).join('')}</select></div>
+    <span class="count">Showing ${openR.length} open item${openR.length===1?'':'s'}${RIF.type!=='All'||RIF.cat!=='All'?' · <button class="fbtn" data-rt="reset">Clear filters</button>':''}</span>`;
+  const due60=openR.filter(r=>r.due&&days(ref,r.due)<=60).sort((a,b)=>a.due-b.due);
+  const zone=s=>s<=4?'Low':s<=9?'Medium':s<=16?'High':'Extreme';
+  let mh='';
+  if(RIF.type==='Issue'){document.getElementById('matrix').innerHTML='<div class="empty" style="grid-column:1/-1">Issues have already happened, so they are rated by impact rather than likelihood. Switch to All or Risks to see the matrix.</div>';}
+  else if(!openRisks.length){document.getElementById('matrix').innerHTML='<div class="empty" style="grid-column:1/-1">No open risks match these filters.</div>';}
+  else {
+  mh=`<div class="ttl l">Likelihood ↓ · Consequence →</div>`;
+  for(let l=5;l>=1;l--){
+    mh+=`<div class="ax">${LIK[l-1]}</div>`;
+    for(let c=1;c<=5;c++){const x=openRisks.filter(r=>r.L===l&&r.C===c);
+      mh+=`<div class="mc z-${zone(l*c)} ${x.length?'on':''}" ${x.length?tipAttr(`${LIK[l-1]} × ${CON[c-1]} · ${zone(l*c)}`,x.map(r=>[shortName(r.title),shortName(byId[r.project_id]?.project_name||'')])):''}>${x.length||''}</div>`}
+  }
+  mh+=`<div></div>${CON.map(c=>`<div class="ax axb">${c}</div>`).join('')}`;
+  document.getElementById('matrix').innerHTML=mh;
+  }
+  document.getElementById('raiddMinis').innerHTML=[[openRisks.length,'Open risks'],[hiRisks.length,'High or extreme'],[openIssues.length,'Open issues'],[hiIssues.length,'High issues'],[overdue.length,'Past target']].map(([v,l])=>`<div class="mini"><b>${v}</b><span>${l}</span></div>`).join('');
+  const rk=r=>RATES.indexOf(r);
+  const rp=P.map(p=>{const rs=openRisks.filter(r=>r.project_id===p.project_id),is=openIssues.filter(r=>r.project_id===p.project_id);
+    const top=rs.reduce((m,r)=>rk(r.severity)>rk(m)?r.severity:m,'');const inc=rs.concat(is).filter(r=>/increas/i.test(r.trend)).length;
+    const expo=rs.reduce((s,r)=>s+(+r.risk_score||0),0)+is.reduce((s,r)=>s+(r.severity==='High'?16:r.severity==='Medium'?9:4),0);
+    return {p,rs,is,top,inc,expo}}).filter(x=>x.rs.length||x.is.length).sort((a,b)=>b.expo-a.expo);
+  document.getElementById('riTable').innerHTML=rp.length?`<thead><tr><th>Project</th><th class="num">Risks</th><th>Highest risk</th><th class="num">Issues</th><th class="num">High issues</th><th class="num">Rising</th></tr></thead><tbody>${rp.map(x=>`<tr>
+    <td><b>${esc(x.p.project_name)}</b><br><span class="rag ${x.p.rag_status}">${x.p.rag_status}</span></td>
+    <td class="num" ${x.rs.length?tipAttr('Open risks',x.rs.map(r=>[shortName(r.title),r.severity])):''}>${x.rs.length||'—'}</td>
+    <td>${x.top?`<span class="rate ${x.top}">${x.top}</span>`:'—'}</td>
+    <td class="num" ${x.is.length?tipAttr('Open issues',x.is.map(r=>[shortName(r.title),r.severity])):''}>${x.is.length||'—'}</td>
+    <td class="num">${x.is.filter(r=>r.severity==='High').length?`<span class="rate High">${x.is.filter(r=>r.severity==='High').length}</span>`:'—'}</td>
+    <td class="num" style="${x.inc?'color:var(--critical);font-weight:700':''}">${x.inc?x.inc+' ▲':'—'}</td></tr>`).join('')}</tbody>`:'<tbody><tr><td style="color:var(--ink-2)">No open items match these filters.</td></tr></tbody>';
+  document.getElementById('due').innerHTML=due60.length?due60.map(r=>`<div class="li"><div class="due">${fmtD(r.due).replace(/ \d{4}$/,'')}<small>${days(ref,r.due)<0?Math.abs(days(ref,r.due))+'d overdue':'in '+days(ref,r.due)+'d'}</small></div>
+    <div><b>${esc(r.title)}</b><small>${esc(byId[r.project_id]?.project_name||'')} · ${esc(r.owner)}${r.response?' · '+esc(r.response):''}</small></div>
+    <div style="text-align:right"><span class="tag">${r.type}</span><br><span class="rate ${r.severity}" style="margin-top:4px">${r.severity}</span></div></div>`).join(''):'<p class="sub">Nothing due.</p>';
+
+}
+
 /* ---- Register ---- */
-let FILTER='All',SORT={k:'project_id',dir:1};
+let FILTER='All',SFILTER='All',SORT={k:'project_id',dir:1};
 function renderTable(M){
   M=M||model();const {P,R,A}=M;
-  const rows=P.filter(p=>FILTER==='All'||p.status===FILTER).map(p=>{
+  const rows=P.filter(p=>(FILTER==='All'||p.status===FILTER)&&(SFILTER==='All'||p.size===SFILTER)).map(p=>{
     const or=R.filter(r=>r.project_id===p.project_id&&r.open);
     const lead=role=>A.filter(a=>a.project_id===p.project_id&&a.role===role&&a.allocation_status!=='Ended').map(a=>a.person_name).join(', ')||A.filter(a=>a.project_id===p.project_id&&a.role===role).map(a=>a.person_name).join(', ')||'—';
     return {...p,openR:or.length,highR:or.filter(r=>/high|extreme/i.test(r.severity)).length,roles:Object.fromEntries([...new Set(A.map(a=>a.role))].map(r=>[r,lead(r)])),fte:A.filter(a=>a.project_id===p.project_id&&a.allocation_status!=='Ended').reduce((t,a)=>t+a.fte,0)};
   });
-  const cols=[['project_name','Project'],['status','Status'],['phase','Phase'],['rag_status','RAG'],['complete','Complete',1],['budget','Budget',1],['bPct','Budget spent',1],['cPct','Cont. used',1],['openR','Open risks & issues',1],...[...new Set(A.map(a=>a.role))].map(r=>['role:'+r,r]),['fte','FTE',1]];
+  const cols=[['project_name','Project'],['status','Status'],['size','Size'],['phase','Phase'],['rag_status','RAG'],['complete','Complete',1],['overall','Overall budget',1],['comPct','Committed',1],['invPct','Invoiced',1],['pendingVal','Pending var.',1],['cPct','Cont. used',1],['openR','Open risks & issues',1],...[...new Set(A.map(a=>a.role))].map(r=>['role:'+r,r]),['fte','FTE',1]];
   rows.sort((a,b)=>{const g=(o,k)=>k.startsWith('role:')?o.roles[k.slice(5)]:o[k];const x=g(a,SORT.k),y=g(b,SORT.k);return (typeof x==='number'?((isFinite(x)?x:-1)-(isFinite(y)?y:-1)):String(x).localeCompare(String(y)))*SORT.dir});
-  document.getElementById('filters').innerHTML=['All',...STATUSES].map(s=>`<button class="fbtn" aria-pressed="${FILTER===s}" data-f="${s}">${s}${s==='All'?'':' · '+P.filter(p=>p.status===s).length}</button>`).join('');
+  document.getElementById('filters').innerHTML=`<span class="lab" style="font-size:11px;font-weight:650;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;align-self:center;margin-right:2px">Status</span>`+['All',...STATUSES].map(s=>`<button class="fbtn" aria-pressed="${FILTER===s}" data-f="${s}">${s}${s==='All'?'':' · '+P.filter(p=>p.status===s).length}</button>`).join('')+`<span class="lab" style="font-size:11px;font-weight:650;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;align-self:center;margin:0 2px 0 14px">Size</span>`+['All',...SIZES].map(s=>`<button class="fbtn" aria-pressed="${SFILTER===s}" data-sf="${s}">${s}${s==='All'?'':' · '+P.filter(p=>p.size===s).length}</button>`).join('');
   const over=v=>v>1?'color:var(--critical);font-weight:700':'';
   document.getElementById('register').innerHTML=`<thead><tr>${cols.map(([k,l,num])=>`<th class="${num?'num':''}" data-k="${k}">${l}${SORT.k===k?(SORT.dir>0?' ↑':' ↓'):''}</th>`).join('')}</tr></thead><tbody>${rows.map(p=>`<tr>
     <td><b>${esc(p.project_name)}</b><br><span style="color:var(--muted);font-size:11.5px">${esc(p.status_reason)}</span></td>
-    <td><span class="st"><span class="dot" style="background:${SCOL[p.status]}"></span>${p.status}</span></td>
+    <td><span class="st"><span class="dot" style="background:${SCOL[p.status]}"></span>${p.status}</span></td><td><span class="size">${p.size}</span></td>
     <td style="white-space:nowrap">${esc(p.phase)}</td><td><span class="rag ${p.rag_status}">${p.rag_status}</span></td>
-    <td class="num">${pct(p.complete)}</td><td class="num">${money(p.budget)}</td><td class="num" style="${over(p.bPct)}">${pct(p.bPct)}</td><td class="num" style="${over(p.cPct)}">${pct(p.cPct)}</td>
+    <td class="num">${pct(p.complete)}</td><td class="num">${money(p.overall)}</td><td class="num" style="${over(p.comPct)}">${pct(p.comPct)}</td><td class="num">${pct(p.invPct)}</td><td class="num">${p.pendingVal?money(p.pendingVal):'—'}</td><td class="num" style="${over(p.cPct)}">${pct(p.cPct)}</td>
     <td class="num">${p.openR}${p.highR?` <span class="flag crit" style="margin-left:2px">${p.highR} high</span>`:''}</td>
     ${Object.values(p.roles).map(v=>`<td>${esc(v)}</td>`).join('')}<td class="num">${p.fte?p.fte.toFixed(1):'—'}</td></tr>`).join('')}</tbody>`;
 }
 document.addEventListener('click',e=>{
+  const rt=e.target.closest('[data-rt]');if(rt){if(rt.dataset.rt==='reset')RIF={type:'All',cat:'All'};else RIF.type=rt.dataset.rt;renderRI();return}
+  const sf=e.target.closest('[data-sf]');if(sf){SFILTER=sf.dataset.sf;renderTable();return}
   const f=e.target.closest('[data-f]');if(f){FILTER=f.dataset.f;renderTable();return}
   const th=e.target.closest('#register th');if(th){const k=th.dataset.k;SORT=SORT.k===k?{k,dir:-SORT.dir}:{k,dir:1};renderTable()}
 });
+
+document.addEventListener('change',e=>{if(e.target.id==='riCat'){RIF.cat=e.target.value;renderRI()}});
 
 /* ---- tooltip ---- */
 const tip=document.getElementById('tip');
@@ -757,7 +889,7 @@ document.getElementById('fileIn').addEventListener('change',async e=>{
   const done=[];
   for(const f of e.target.files){
     const rows=parseCSV(await f.text());if(!rows.length)continue;const h=Object.keys(rows[0]);
-    const key=(h.includes('item_id')||h.includes('raidd_id'))?'raidd':h.includes('allocation_id')?'resourcing':h.includes('project_name')?'projects':null;
+    const key=(h.includes('item_id')||h.includes('raidd_id'))?'raidd':h.includes('allocation_id')?'resourcing':h.includes('variation_id')?'variations':h.includes('project_name')?'projects':null;
     if(key){D[key]=rows;SRC[key]=f.name;done.push(`${f.name} → ${key}`)} else done.push(`${f.name}: not recognised`);
   }
   try{render();toast('Loaded '+done.join(', '))}catch(err){toast('Could not render: '+err.message);console.error(err)}
