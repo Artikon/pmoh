@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  color-scheme: light;
+  --page:#f4f4f1; --surface:#fcfcfb; --surface-2:#f0efec;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+  --s-inflight:#2a78d6; --s-standby:#eb6834; --s-completed:#1baf7a; --s-pipeline:#eda100;
+  --m-progress:#2a78d6; --m-budget:#eb6834; --m-cont:#4a3aa7;
+  --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+  --seq-1:#cde2fb; --seq-2:#9ec5f4; --seq-3:#5598e7; --seq-4:#1c5cab;
+  --track:#e9e8e3;
+  --hatch: repeating-linear-gradient(45deg, rgba(74,58,167,.16) 0 3px, transparent 3px 6px);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#242422;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+    --s-inflight:#3987e5; --s-standby:#d95926; --s-completed:#199e70; --s-pipeline:#c98500;
+    --m-progress:#3987e5; --m-budget:#d95926; --m-cont:#9085e9;
+    --seq-1:#184f95; --seq-2:#256abf; --seq-3:#3987e5; --seq-4:#86b6ef;
+    --track:#2a2a28;
+    --hatch: repeating-linear-gradient(45deg, rgba(144,133,233,.22) 0 3px, transparent 3px 6px);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+
+/* ---------- header ---------- */
+.hero{position:relative;height:330px;overflow:hidden;background:radial-gradient(120% 140% at 15% 0%,#14325e 0%,#0a1630 45%,#060b18 100%);color:#fff}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,11,24,.85) 0%,rgba(6,11,24,.35) 55%,rgba(6,11,24,0) 100%);pointer-events:none}
+.hero-inner{position:relative;z-index:1;max-width:1360px;margin:0 auto;height:100%;padding:36px 32px 58px;display:flex;flex-direction:column;justify-content:space-between}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8fb8f0;font-weight:600}
+.hero h1{margin:6px 0 4px;font-size:clamp(28px,4.2vw,46px);line-height:1.05;letter-spacing:-.02em;font-weight:750}
+.hero p{margin:0;color:#c3cde0;max-width:560px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);font-size:12.5px;color:#e5ecf7;backdrop-filter:blur(6px)}
+.btn{cursor:pointer;font:inherit;font-size:12.5px;font-weight:600;color:#0a1630;background:#e5ecf7;border:0;border-radius:999px;padding:8px 14px}
+.btn:hover{background:#fff}
+
+/* ---------- layout ---------- */
+main{max-width:1360px;margin:-34px auto 0;padding:0 32px 64px;position:relative;z-index:2}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:14px;padding:20px 22px;min-width:0}
+.span-3{grid-column:span 3}.span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-6{grid-column:span 6}.span-7{grid-column:span 7}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
+@media (max-width:1100px){.span-3{grid-column:span 6}.span-4,.span-5,.span-7,.span-8{grid-column:span 12}.span-6{grid-column:span 12}}
+@media (max-width:640px){main{padding:0 16px 48px}.hero{height:auto;min-height:330px}.hero-inner{padding:28px 16px 56px;gap:18px}.axisrow,.drow{grid-template-columns:96px minmax(0,1fr) 58px;gap:8px}.watch{grid-template-columns:1fr}.heat{overflow-x:auto}.drow .val{font-size:11px}.span-3{grid-column:span 12}.card{padding:16px}}
+.card h2{margin:0;font-size:15px;font-weight:650;letter-spacing:-.005em}
+.card .sub{margin:2px 0 16px;color:var(--ink-2);font-size:12.5px}
+.section-title{grid-column:span 12;margin:22px 2px 0;display:flex;align-items:baseline;gap:12px}
+.section-title h3{margin:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:650}
+.section-title::after{content:"";flex:1;height:1px;background:var(--grid)}
+
+/* ---------- KPI tiles ---------- */
+.kpi .label{font-size:12px;color:var(--ink-2);font-weight:550}
+.kpi .value{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:4px 0 2px}
+.kpi .note{font-size:12px;color:var(--muted)}
+.meter{height:6px;border-radius:3px;background:var(--track);overflow:hidden;margin-top:10px;display:flex;gap:2px}
+.meter>span{display:block;height:100%;border-radius:3px}
+.status-split{display:flex;gap:2px;height:8px;margin-top:12px}
+.status-split span{border-radius:3px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-2);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.legend .shape{border-radius:50%}
+
+/* ---------- phase strip ---------- */
+.phases{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+@media (max-width:1100px){.phases{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.phases{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.phase{background:var(--surface-2);border-radius:10px;padding:12px;min-height:150px}
+.phase-head{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:10px}
+.phase-num{font-size:11px;color:var(--muted);font-weight:650;letter-spacing:.06em}
+.phase-name{font-size:13px;font-weight:650;line-height:1.25}
+.phase-count{font-size:24px;font-weight:700;line-height:1}
+.chip{display:block;background:var(--surface);border:1px solid var(--ring);border-left:4px solid var(--axis);border-radius:7px;padding:6px 8px;margin-top:6px;font-size:12px;line-height:1.3;cursor:default}
+.chip b{font-weight:600}
+.chip small{display:flex;align-items:center;gap:5px;color:var(--ink-2);font-size:11px;margin-top:2px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* ---------- RAG ---------- */
+.rag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;white-space:nowrap}
+.rag::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor;box-shadow:0 0 0 2px var(--surface)}
+.rag.Red{color:var(--critical)}.rag.Amber{color:#c58a00}.rag.Green{color:var(--good)}
+@media (prefers-color-scheme: dark){.rag.Amber{color:var(--warning)}}
+.stackrow{display:grid;grid-template-columns:92px 1fr 28px;gap:10px;align-items:center;margin:10px 0}
+.stackrow .lbl{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px}
+.stack{display:flex;gap:2px;height:22px}
+.stack span{border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:#fff;min-width:0}
+.stack .Amber{color:#3a2a00}
+.stackrow .tot{font-size:12.5px;font-weight:650;text-align:right}
+
+/* ---------- row charts ---------- */
+.rows{position:relative}
+.axisrow,.drow{display:grid;grid-template-columns:minmax(120px,190px) 1fr 86px;gap:12px;align-items:center}
+.drow{padding:7px 0;border-top:1px solid var(--grid)}
+.drow:hover{background:var(--surface-2)}
+.drow .name{font-size:12.5px;line-height:1.25;min-width:0}
+.drow .name small{display:block;color:var(--muted);font-size:11px}
+.drow .val{font-size:12px;color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+.track{position:relative;height:22px}
+.track .gl{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--grid)}
+.track .gl.strong{background:var(--axis)}
+.ticks{position:relative;height:16px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ticks span{position:absolute;transform:translateX(-50%)}
+.mk{position:absolute;top:50%;width:12px;height:12px;transform:translate(-50%,-50%);box-shadow:0 0 0 2px var(--surface)}
+.mk.progress{background:var(--m-progress);border-radius:50%}
+.mk.budget{background:var(--m-budget);transform:translate(-50%,-50%) rotate(45deg);width:10px;height:10px;border-radius:2px}
+.mk.cont{width:0;height:0;background:none;box-shadow:none;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid var(--m-cont);filter:drop-shadow(0 0 1px var(--surface))}
+.span-line{position:absolute;top:50%;height:2px;background:var(--axis);transform:translateY(-50%)}
+.flag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px}
+.flag.crit{background:color-mix(in srgb,var(--critical) 16%,transparent);color:var(--critical)}
+.flag.ser{background:color-mix(in srgb,var(--serious) 20%,transparent);color:#b5501f}
+@media (prefers-color-scheme: dark){.flag.ser{color:var(--serious)}}
+
+.bar{position:absolute;top:3px;bottom:3px;border-radius:0 4px 4px 0}
+.bar.budget{background:var(--track);left:0}
+.bar.spend{background:var(--s-inflight);left:0}
+.bar.over{background:var(--critical)}
+.bar.contbox{background:var(--hatch);border:1px dashed color-mix(in srgb,var(--m-cont) 55%,transparent);border-radius:0 4px 4px 0}
+.bar.contspend{background:var(--m-cont)}
+
+/* ---------- heatmap ---------- */
+.heat{display:grid;gap:3px;font-size:12px}
+.heat .hd{font-size:11px;color:var(--muted);font-weight:600;text-align:center;padding-bottom:4px}
+.heat .hd.l{text-align:left}
+.heat .pl{font-size:12.5px;padding-right:8px;display:flex;align-items:center;gap:6px;min-width:0}
+.heat .pl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.heat .cell{height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:650;font-variant-numeric:tabular-nums;background:var(--surface-2);color:var(--muted)}
+.c1{background:var(--seq-1)!important;color:#0d366b!important}
+.c2{background:var(--seq-2)!important;color:#0d366b!important}
+.c3{background:var(--seq-3)!important;color:#fff!important}
+.c4{background:var(--seq-4)!important;color:#fff!important}
+@media (prefers-color-scheme: dark){.c1,.c2{color:#fff!important}.c4{color:#0d366b!important}}
+
+.minis{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.mini{flex:1;min-width:110px;background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.mini b{display:block;font-size:22px;letter-spacing:-.01em}
+.mini span{font-size:12px;color:var(--ink-2)}
+
+.list{display:flex;flex-direction:column}
+.li{display:grid;grid-template-columns:78px 1fr auto;gap:10px;padding:9px 0;border-top:1px solid var(--grid);align-items:start;font-size:12.5px}
+.li .due{font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:12px}
+.li small{display:block;color:var(--muted);font-size:11.5px}
+.tag{display:inline-block;font-size:11px;font-weight:650;padding:2px 7px;border-radius:5px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+
+/* ---------- capacity ---------- */
+.cap .seg{position:absolute;top:2px;bottom:2px;border-radius:3px;display:block;text-align:center;line-height:18px;padding:0 4px;font-size:10.5px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cap .seg.Pipeline{color:#3a2a00}
+.capline{position:absolute;top:-6px;bottom:-6px;width:0;border-left:2px dashed var(--critical);z-index:2}
+
+/* ---------- gantt ---------- */
+.gantt .track{height:20px}
+.gbar{position:absolute;top:4px;bottom:4px;border-radius:4px;min-width:4px}
+.today{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.55;z-index:3}
+.today-lbl{position:absolute;top:-2px;transform:translateX(-50%);font-size:11px;font-weight:650;background:var(--surface);padding:0 4px;color:var(--ink)}
+
+/* ---------- watchlist ---------- */
+.watch{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.w{border:1px solid var(--ring);border-radius:12px;padding:14px 16px;background:var(--surface);position:relative;overflow:hidden}
+.w::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--sev)}
+.w.critical{--sev:var(--critical)}.w.serious{--sev:var(--serious)}.w.warning{--sev:var(--warning)}
+.w .sev{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.w .sev svg{width:14px;height:14px;color:var(--sev)}
+.w h4{margin:6px 0 4px;font-size:14px;font-weight:650}
+.w p{margin:0;font-size:12.5px;color:var(--ink-2)}
+.w ul{margin:8px 0 0;padding-left:16px;font-size:12.5px}
+.updates{list-style:none;margin:0;padding:0}
+.updates li{display:grid;grid-template-columns:104px 1fr;gap:16px;padding:13px 0;border-top:1px solid var(--grid);font-size:14px;line-height:1.55;color:var(--ink-2)}
+.updates li:first-child{border-top:0;padding-top:2px}
+.updates li b{color:var(--ink);font-weight:650}
+.updates .sev{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);padding-top:3px}
+.updates .sev svg{width:14px;height:14px}
+.updates li.critical .sev svg{color:var(--critical)}
+.updates li.serious .sev svg{color:var(--serious)}
+@media (max-width:640px){.updates li{grid-template-columns:1fr;gap:4px}}
+.rolebar{display:grid;grid-template-columns:78px 1fr 64px;gap:8px;align-items:center;font-size:12px;color:var(--ink-2);margin-top:8px}
+.rolebar .meter{margin-top:0}
+.rolebar span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.w li{margin:2px 0}
+
+/* ---------- table ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.fbtn{cursor:pointer;font:inherit;font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--ring);background:var(--surface);color:var(--ink-2)}
+.fbtn[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{text-align:left;font-size:11px;font-weight:650;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--axis);cursor:pointer;white-space:nowrap;user-select:none}
+th.num,td.num{text-align:right}
+td{padding:9px 10px;border-bottom:1px solid var(--grid);vertical-align:top;font-variant-numeric:tabular-nums}
+tr:hover td{background:var(--surface-2)}
+.st{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--ring);box-shadow:0 8px 24px rgba(0,0,0,.18);border-radius:8px;padding:8px 10px;font-size:12px;max-width:280px;opacity:0;transition:opacity .1s}
+#tip b{display:block;margin-bottom:2px}
+#tip .r{display:flex;justify-content:space-between;gap:14px;color:var(--ink-2)}
+#tip .r span:last-child{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .2s;z-index:60}
+footer{max-width:1360px;margin:0 auto;padding:0 32px 40px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <div>
+      <div class="eyebrow">Portfolio view</div>
+      <h1>Portfolio Dashboard</h1>
+      <p>Lifecycle, health, financials, RAIDD and resourcing, drawn from the project, RAIDD and resourcing registers.</p>
+    </div>
+    <div class="hero-meta">
+      <span class="pill" id="repDate">Reporting date —</span>
+      <span class="pill" id="srcInfo">Sources —</span>
+      <label class="btn" for="fileIn">Load updated CSVs</label>
+      <input id="fileIn" type="file" accept=".csv,text/csv" multiple hidden>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="grid" id="kpis"></div>
+
+  <div class="grid">
+    <div class="section-title"><h3>Key updates</h3></div>
+    <div class="card span-12">
+      <h2>Key updates for executive review</h2>
+      <div class="sub">Critical and serious matters only, summarised from the latest project, RAIDD and resourcing data.</div>
+      <ul class="updates" id="watch"></ul>
+    </div>
+
+    <div class="section-title"><h3>Lifecycle &amp; health</h3></div>
+    <div class="card span-8">
+      <h2>Projects by phase</h2>
+      <div class="sub">Each card's left edge shows the project's RAG rating.</div>
+      <div class="phases" id="phases"></div>
+      <div class="legend" id="statusLegend"></div>
+    </div>
+    <div class="card span-4">
+      <h2>Health by status</h2>
+      <div class="sub">Count of projects at each RAG rating.</div>
+      <div id="ragStack"></div>
+      <div class="legend">
+        <span><span class="rag Green">Green</span></span>
+        <span><span class="rag Amber">Amber</span></span>
+        <span><span class="rag Red">Red</span></span>
+      </div>
+    </div>
+
+    <div class="section-title"><h3>Financials</h3></div>
+    <div class="card span-6">
+      <h2>Progress vs budget vs contingency</h2>
+      <div class="sub">In-flight and standby projects. When a marker sits right of the progress dot, spend is running ahead of delivery.</div>
+      <div class="rows" id="burn"></div>
+      <div class="legend">
+        <span><i class="shape" style="background:var(--m-progress)"></i>% complete</span>
+        <span><i style="background:var(--m-budget);transform:rotate(45deg) scale(.85)"></i>% budget spent</span>
+        <span><i style="width:0;height:0;background:none;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid var(--m-cont);border-radius:0"></i>% contingency used</span>
+      </div>
+    </div>
+    <div class="card span-6">
+      <h2>Budget, contingency &amp; spend</h2>
+      <div class="sub">All projects with a budget. The grey bar is budget, the hatched box is contingency, and the solid fills are spend.</div>
+      <div class="rows" id="money"></div>
+      <div class="legend">
+        <span><i style="background:var(--track);outline:1px solid var(--axis)"></i>Budget</span>
+        <span><i style="background:var(--s-inflight)"></i>Budget spend</span>
+        <span><i style="background:var(--hatch);outline:1px dashed var(--m-cont)"></i>Contingency</span>
+        <span><i style="background:var(--m-cont)"></i>Contingency spend</span>
+        <span><i style="background:var(--critical)"></i>Overrun</span>
+      </div>
+    </div>
+
+    <div class="section-title"><h3>RAIDD</h3></div>
+    <div class="card span-7">
+      <h2>Open RAIDD items by project</h2>
+      <div class="sub">Closed items are excluded. Darker cells mean more open items.</div>
+      <div class="minis" id="raiddMinis"></div>
+      <div class="heat" id="heat"></div>
+    </div>
+    <div class="card span-5">
+      <h2>Coming due</h2>
+      <div class="sub">Open items due in the next 60 days.</div>
+      <div class="list" id="due"></div>
+    </div>
+
+    <div class="section-title"><h3>Resourcing</h3></div>
+    <div class="card span-7">
+      <h2>Current PM allocation</h2>
+      <div class="sub">FTE allocated on the reporting date, coloured by project status. The dashed line marks 1.0 FTE.</div>
+      <div class="rows cap" id="cap"></div>
+      <div class="legend" id="capLegend"></div>
+    </div>
+    <div class="card span-5">
+      <h2>Role coverage</h2>
+      <div class="sub">Clinical PM and IT PM assignment for every project that isn't complete.</div>
+      <div class="tablewrap"><table id="cover"></table></div>
+    </div>
+
+    <div class="section-title"><h3>Schedule</h3></div>
+    <div class="card span-12">
+      <h2>Portfolio schedule</h2>
+      <div class="sub">Start to target end for each project; completed projects run to their actual end date.</div>
+      <div class="rows gantt" id="gantt"></div>
+    </div>
+
+    <div class="section-title"><h3>Register</h3></div>
+    <div class="card span-12">
+      <h2>Project register</h2>
+      <div class="sub">The merged view. Click a column heading to sort.</div>
+      <div class="filters" id="filters"></div>
+      <div class="tablewrap"><table id="register"></table></div>
+    </div>
+  </div>
+</main>
+<footer>Example data for testing the merge. Use “Load updated CSVs” to swap in new versions of projects.csv, raidd_log.csv or resourcing.csv; each file is recognised by its columns.</footer>
+
+<div id="tip"></div>
+<div id="toast"></div>
+
+<script type="text/csv" id="csv-projects">
+project_id,project_name,status,phase,portfolio,sponsor,priority,start_date,target_end_date,actual_end_date,budget_aud,budget_spend_to_date_aud,contingency_aud,contingency_spend_to_date_aud,percent_complete,rag_status,status_reason,last_updated
+PRJ-001,EMR Upgrade v12,In-flight,5. Construction,Clinical Systems,Dr Helen Marsh (CMIO),High,2025-11-03,2027-03-31,,2400000,1310000,240000,110000,55,Amber,Vendor patch delays on integration build,2026-10-05
+PRJ-002,ePrescribing Rollout - Inpatient,In-flight,5. Construction,Medications,Karen Lowe (Director of Pharmacy),High,2025-07-14,2026-12-18,,1150000,920000,115000,62000,78,Green,Wards 1-6 live; wards 7-12 scheduled,2026-10-06
+PRJ-003,Telehealth Platform Expansion,In-flight,4. Tender,Digital Front Door,Michael Grant (COO),Medium,2026-02-02,2026-11-30,,680000,410000,68000,74000,62,Red,Privacy impact assessment outstanding,2026-10-02
+PRJ-004,PACS Migration to Cloud,In-flight,5. Construction,Diagnostics,Dr Anil Shah (Director of Radiology),High,2025-09-01,2027-01-29,,1850000,1240000,185000,150000,70,Amber,Image migration throughput below plan,2026-10-07
+PRJ-005,Sepsis Early Warning Alerts,In-flight,2. Detailed Design (DD),Clinical Decision Support,Dr Helen Marsh (CMIO),High,2026-05-11,2027-04-30,,520000,140000,52000,0,25,Green,Clinical rules workshop complete,2026-10-01
+PRJ-006,Theatre Scheduling Optimisation,In-flight,3. Contract Documents (CD),Perioperative,Jenny Hartley (Director of Surgery),Medium,2026-03-16,2027-02-26,,760000,330000,76000,18000,40,Amber,Surgeon engagement lower than expected,2026-09-29
+PRJ-007,Nurse Rostering System Replacement,Standby,4. Tender,Workforce,Fiona Reid (Director of Nursing),Medium,2025-10-06,2027-06-30,,950000,210000,95000,12000,18,Amber,Paused pending vendor procurement outcome,2026-09-15
+PRJ-008,Remote Patient Monitoring Pilot,Standby,1. Schematic Design (SD),Digital Front Door,Michael Grant (COO),Low,2026-04-06,2027-03-31,,430000,35000,43000,0,5,Amber,Funding deferred to FY28 budget cycle,2026-08-20
+PRJ-009,Allied Health e-Referrals,Standby,2. Detailed Design (DD),Community Health,Paul Osei (Director of Allied Health),Medium,2025-08-04,2026-12-11,,390000,180000,39000,21000,45,Red,On hold - interface engine capacity diverted to PACS,2026-09-22
+PRJ-010,Pathology Results Integration,Completed,6. Defects Liability Period (DLP),Diagnostics,Dr Anil Shah (Director of Radiology),High,2024-11-04,2025-12-19,2026-02-13,870000,905000,87000,87000,100,Green,Closed - benefits realisation tracking underway,2026-03-10
+PRJ-011,Electronic Discharge Summaries,Completed,6. Defects Liability Period (DLP),Clinical Systems,Dr Helen Marsh (CMIO),High,2025-02-03,2026-06-30,2026-06-26,540000,512000,54000,23000,100,Green,Closed on time and under budget,2026-07-14
+PRJ-012,Bed Management Dashboard,Completed,6. Defects Liability Period (DLP),Patient Flow,Michael Grant (COO),Medium,2025-06-02,2026-04-30,2026-05-29,310000,342000,31000,31000,100,Amber,Closed one month late with overspend,2026-06-19
+PRJ-013,Medication Reconciliation at Admission,Pipeline,1. Schematic Design (SD),Medications,Karen Lowe (Director of Pharmacy),High,2027-01-18,2027-10-29,,620000,12000,62000,0,0,Green,Business case in review,2026-10-03
+PRJ-014,Infection Control Surveillance,Pipeline,1. Schematic Design (SD),Clinical Decision Support,Dr Rachel Moore (Head of Infection Control),Medium,2027-02-01,2027-12-17,,480000,18000,48000,0,0,Green,Solution options paper drafted,2026-09-30
+PRJ-015,Patient Portal Self-Booking,Pipeline,1. Schematic Design (SD),Digital Front Door,Michael Grant (COO),Medium,2027-03-01,2028-02-25,,1100000,0,110000,0,0,Amber,Awaiting resourcing and funding approval,2026-09-12
+PRJ-016,Clinical Coding Automation,Pipeline,2. Detailed Design (DD),Health Information,Sandra Bell (Health Information Manager),Low,2027-01-11,2027-09-24,,560000,9000,56000,0,0,Green,Vendor demos scheduled,2026-10-06
+</script>
+<script type="text/csv" id="csv-raidd">
+raidd_id,project_id,type,title,description,owner,raised_date,due_date,status,severity,likelihood,impact_area,next_action
+RD-001,PRJ-001,Risk,Vendor patch slippage,Vendor v12.2 patch may slip past build window,Daniel Kim,2026-07-14,2026-11-15,Open,High,Likely,Schedule,Weekly vendor escalation call
+RD-002,PRJ-001,Issue,Interface regression defects,14 HL7 interface defects found in SIT cycle 2,Daniel Kim,2026-09-08,2026-10-24,In Progress,High,,Quality,Defect triage twice weekly
+RD-003,PRJ-001,Dependency,Data centre network upgrade,Go-live depends on core network upgrade completing,Infrastructure Team,2026-05-20,2027-01-15,Open,Medium,,Schedule,Confirm network cutover date
+RD-004,PRJ-001,Decision,Big-bang vs phased go-live,Agreed phased go-live by campus,Dr Helen Marsh,2026-04-02,2026-04-30,Closed,Medium,,Scope,None - decision logged
+RD-005,PRJ-001,Assumption,Super-user availability,Assumes 40 super-users released for 3 days training,Sarah Nguyen,2026-06-11,2026-12-01,Open,Medium,,Resourcing,Confirm rosters with nursing units
+RD-006,PRJ-002,Risk,Pharmacist workload during rollout,Pharmacy may lack capacity to verify orders during ward go-lives,Sarah Nguyen,2026-03-18,2026-12-18,Open,Medium,Possible,Clinical Safety,Backfill locum pharmacists
+RD-007,PRJ-002,Issue,Device shortage on wards 9-10,Insufficient workstations-on-wheels for ward 9 and 10,Emma Walsh,2026-09-21,2026-10-30,In Progress,Medium,,Delivery,Expedite device order
+RD-008,PRJ-002,Decision,Paper chart retirement,Paper medication charts retired 2 weeks post ward go-live,Karen Lowe,2026-02-10,2026-02-24,Closed,Low,,Clinical Safety,None - decision logged
+RD-009,PRJ-002,Assumption,Formulary stable,Assumes no major formulary changes before December,James O'Brien,2026-01-20,2026-12-18,Open,Low,,Scope,Monitor drug committee agenda
+RD-010,PRJ-003,Issue,Privacy impact assessment overdue,PIA not signed off - blocking video consult go-live,Raj Patel,2026-08-12,2026-10-16,Open,High,,Compliance,Escalate to Privacy Officer
+RD-011,PRJ-003,Risk,Clinician uptake,Specialists may not adopt platform without workflow changes,Priya Raman,2026-04-14,2026-11-30,Open,Medium,Likely,Benefits,Run clinic champion program
+RD-012,PRJ-003,Dependency,Identity provider integration,Patient login depends on statewide identity service,Raj Patel,2026-03-02,2026-11-02,In Progress,High,,Schedule,Confirm API access date
+RD-013,PRJ-003,Risk,Budget overrun,Additional licensing may push spend beyond approved budget,Raj Patel,2026-09-15,2026-11-30,Open,Medium,Possible,Cost,Draft variation request
+RD-014,PRJ-004,Issue,Migration throughput,Image migration running at 60% of planned rate,Lucy Chen,2026-08-25,2026-11-07,In Progress,High,,Schedule,Add second migration node
+RD-015,PRJ-004,Risk,Radiologist downtime tolerance,Cutover window may exceed acceptable reporting downtime,Tom Fletcher,2026-06-03,2026-12-15,Open,High,Possible,Clinical Safety,Agree downtime procedures
+RD-016,PRJ-004,Dependency,Cloud tenancy approval,Requires security sign-off on cloud tenancy,Cyber Security,2026-02-17,2026-07-31,Closed,High,,Compliance,None - approved 2026-07-28
+RD-017,PRJ-004,Decision,Retain on-prem cache,Retain 90-day on-prem image cache for resilience,Dr Anil Shah,2026-05-06,2026-05-20,Closed,Medium,,Scope,None - decision logged
+RD-018,PRJ-005,Risk,Alert fatigue,High false-positive rate may cause clinicians to ignore alerts,Sarah Nguyen,2026-06-22,2027-02-01,Open,High,Likely,Clinical Safety,Tune thresholds with ICU data
+RD-019,PRJ-005,Assumption,Vital signs data complete,Assumes obs captured electronically within 15 mins,Sarah Nguyen,2026-05-25,2026-12-01,Open,Medium,,Data Quality,Run obs timeliness audit
+RD-020,PRJ-005,Dependency,EMR v12 upgrade,Alert engine requires EMR v12 rules module,Mark Davies,2026-05-25,2027-03-31,Open,High,,Schedule,Track PRJ-001 milestones
+RD-021,PRJ-006,Issue,Low surgeon engagement,Only 4 of 11 surgical units attended design sessions,Priya Raman,2026-08-04,2026-10-31,In Progress,Medium,,Benefits,Director of Surgery to mandate attendance
+RD-022,PRJ-006,Risk,Integration with anaesthetics system,Anaesthetics system API is undocumented,Raj Patel,2026-05-12,2026-12-04,Open,Medium,Possible,Technical,Request vendor API spec
+RD-023,PRJ-006,Assumption,Theatre list structure unchanged,Assumes current session template retained,Priya Raman,2026-04-01,2027-02-26,Open,Low,,Scope,Confirm with perioperative committee
+RD-024,PRJ-007,Issue,Procurement on hold,Tender evaluation paused by procurement review,Emma Walsh,2026-08-18,2026-11-30,Open,High,,Schedule,Await procurement committee decision
+RD-025,PRJ-007,Risk,Current system end of support,Existing rostering system unsupported after June 2027,Tom Fletcher,2026-03-09,2027-06-30,Open,High,Likely,Operational,Negotiate extended support
+RD-026,PRJ-008,Decision,Pause pilot,Pilot paused until FY28 funding confirmed,Michael Grant,2026-08-14,2026-08-20,Closed,Medium,,Cost,None - decision logged
+RD-027,PRJ-008,Assumption,Device vendor holds pricing,Assumes quoted device pricing held until mid 2027,James O'Brien,2026-04-20,2027-06-30,Open,Low,,Cost,Request written price hold
+RD-028,PRJ-009,Dependency,Interface engine capacity,Build resumes once interface team released from PACS,Integration Team,2026-09-01,2027-01-29,Open,High,,Resourcing,Revisit after PACS cutover
+RD-029,PRJ-009,Risk,GP referral templates change,Statewide referral template update may require rework,Priya Raman,2026-07-07,2026-12-11,Open,Medium,Possible,Scope,Monitor statewide release notes
+RD-030,PRJ-010,Issue,Duplicate result notifications,Some clinicians received duplicate result alerts post go-live,Daniel Kim,2026-01-12,2026-02-06,Closed,Medium,,Quality,None - fixed in release 1.3
+RD-031,PRJ-010,Decision,Accept overspend,Steering committee accepted 4% overspend,Dr Anil Shah,2026-01-28,2026-02-04,Closed,Low,,Cost,None - decision logged
+RD-032,PRJ-011,Risk,GP practice software compatibility,Some GP systems may not render new summary format,Lucy Chen,2025-04-15,2026-05-30,Closed,Medium,Unlikely,Technical,None - resolved in testing
+RD-033,PRJ-012,Issue,Real-time feed latency,Bed status feed delayed up to 20 minutes,Raj Patel,2026-03-03,2026-05-15,Closed,High,,Quality,None - resolved via ADT feed change
+RD-034,PRJ-012,Decision,Extend go-live by one month,Go-live moved to May to fix latency,Michael Grant,2026-04-08,2026-04-15,Closed,Medium,,Schedule,None - decision logged
+RD-035,PRJ-013,Assumption,Pharmacist-led model,Assumes pharmacists own reconciliation at admission,James O'Brien,2026-09-10,2026-12-15,Open,Medium,,Scope,Validate in business case
+RD-036,PRJ-013,Dependency,ePrescribing complete,Requires PRJ-002 rollout complete across all wards,Emma Walsh,2026-09-10,2026-12-18,Open,High,,Schedule,Track PRJ-002 ward schedule
+RD-037,PRJ-014,Risk,Data sharing with public health,Data sharing agreement may take 6+ months,Sarah Nguyen,2026-09-14,2027-03-31,Open,Medium,Likely,Compliance,Start legal engagement early
+RD-038,PRJ-015,Issue,No delivery resources assigned,No Clinical PM or IT PM available to start planning,PMO,2026-09-12,2026-11-30,Open,High,,Resourcing,Raise at portfolio prioritisation forum
+RD-039,PRJ-015,Risk,Booking system integration,Outpatient booking system may not support external booking API,PMO,2026-09-12,2027-03-01,Open,Medium,Possible,Technical,Request vendor roadmap
+RD-040,PRJ-016,Assumption,Coding accuracy threshold,Assumes 95% auto-code accuracy is acceptable to auditors,Tom Fletcher,2026-09-28,2026-12-11,Open,Medium,,Compliance,Confirm with clinical coding audit lead
+RD-041,PRJ-016,Decision,Shortlist two vendors,Two vendors shortlisted for proof of concept,Sandra Bell,2026-10-01,2026-10-06,Closed,Low,,Scope,None - decision logged
+</script>
+<script type="text/csv" id="csv-resourcing">
+allocation_id,project_id,person_id,person_name,role,fte_allocation,hours_per_week,allocation_start,allocation_end,allocation_status
+AL-001,PRJ-001,CPM-01,Sarah Nguyen,Clinical PM,0.5,19,2025-11-03,2027-03-31,Active
+AL-002,PRJ-001,ITPM-01,Daniel Kim,IT PM,0.6,22.8,2025-11-03,2027-03-31,Active
+AL-003,PRJ-002,CPM-02,James O'Brien,Clinical PM,0.4,15.2,2025-07-14,2026-12-18,Active
+AL-004,PRJ-002,ITPM-02,Emma Walsh,IT PM,0.5,19,2025-07-14,2026-12-18,Active
+AL-005,PRJ-003,CPM-03,Priya Raman,Clinical PM,0.3,11.4,2026-02-02,2026-11-30,Active
+AL-006,PRJ-003,ITPM-03,Raj Patel,IT PM,0.5,19,2026-02-02,2026-11-30,Active
+AL-007,PRJ-004,CPM-04,Tom Fletcher,Clinical PM,0.3,11.4,2025-09-01,2027-01-29,Active
+AL-008,PRJ-004,ITPM-04,Lucy Chen,IT PM,0.7,26.6,2025-09-01,2027-01-29,Active
+AL-009,PRJ-005,CPM-01,Sarah Nguyen,Clinical PM,0.4,15.2,2026-05-11,2027-04-30,Active
+AL-010,PRJ-005,ITPM-05,Mark Davies,IT PM,0.3,11.4,2026-05-11,2027-04-30,Active
+AL-011,PRJ-006,CPM-03,Priya Raman,Clinical PM,0.4,15.2,2026-03-16,2027-02-26,Active
+AL-012,PRJ-006,ITPM-03,Raj Patel,IT PM,0.4,15.2,2026-03-16,2027-02-26,Active
+AL-013,PRJ-007,CPM-04,Tom Fletcher,Clinical PM,0.1,3.8,2025-10-06,2027-06-30,Reduced (Standby)
+AL-014,PRJ-007,ITPM-02,Emma Walsh,IT PM,0.1,3.8,2025-10-06,2027-06-30,Reduced (Standby)
+AL-015,PRJ-008,CPM-02,James O'Brien,Clinical PM,0.1,3.8,2026-04-06,2027-03-31,Reduced (Standby)
+AL-016,PRJ-009,CPM-03,Priya Raman,Clinical PM,0.1,3.8,2025-08-04,2026-12-11,Reduced (Standby)
+AL-017,PRJ-009,ITPM-05,Mark Davies,IT PM,0.1,3.8,2025-08-04,2026-12-11,Reduced (Standby)
+AL-018,PRJ-010,CPM-04,Tom Fletcher,Clinical PM,0.4,15.2,2024-11-04,2026-02-13,Ended
+AL-019,PRJ-010,ITPM-01,Daniel Kim,IT PM,0.5,19,2024-11-04,2026-02-13,Ended
+AL-020,PRJ-011,CPM-02,James O'Brien,Clinical PM,0.3,11.4,2025-02-03,2026-06-26,Ended
+AL-021,PRJ-011,ITPM-04,Lucy Chen,IT PM,0.3,11.4,2025-02-03,2026-06-26,Ended
+AL-022,PRJ-012,CPM-01,Sarah Nguyen,Clinical PM,0.3,11.4,2025-06-02,2026-05-29,Ended
+AL-023,PRJ-012,ITPM-03,Raj Patel,IT PM,0.2,7.6,2025-06-02,2026-05-29,Ended
+AL-024,PRJ-013,CPM-02,James O'Brien,Clinical PM,0.2,7.6,2026-11-02,2027-10-29,Planned
+AL-025,PRJ-013,ITPM-02,Emma Walsh,IT PM,0.1,3.8,2026-11-02,2027-10-29,Planned
+AL-026,PRJ-014,CPM-01,Sarah Nguyen,Clinical PM,0.3,11.4,2026-09-07,2027-12-17,Active
+AL-027,PRJ-016,CPM-04,Tom Fletcher,Clinical PM,0.2,7.6,2026-08-17,2027-09-24,Active
+AL-028,PRJ-016,ITPM-05,Mark Davies,IT PM,0.2,7.6,2026-08-17,2027-09-24,Active
+</script>
+
+<script>
+/* ================= data ================= */
+function parseCSV(t){
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){row.push(f);f='';}
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&t[i+1]==='\n')i++; row.push(f);f=''; if(row.length>1||row[0]!=='') rows.push(row); row=[]; }
+    else f+=c;
+  }
+  if(f!==''||row.length){row.push(f);rows.push(row);}
+  const h=rows.shift().map(s=>s.trim().replace(/^﻿/,''));
+  return rows.map(r=>Object.fromEntries(h.map((k,i)=>[k,(r[i]??'').trim()])));
+}
+const D={
+  projects:parseCSV(document.getElementById('csv-projects').textContent.trim()),
+  raidd:parseCSV(document.getElementById('csv-raidd').textContent.trim()),
+  resourcing:parseCSV(document.getElementById('csv-resourcing').textContent.trim())
+};
+const SRC={projects:'projects.csv',raidd:'raidd_log.csv',resourcing:'resourcing.csv'};
+
+/* ================= helpers ================= */
+const STATUSES=['In-flight','Standby','Pipeline','Completed'];
+const SCOL={'In-flight':'var(--s-inflight)','Standby':'var(--s-standby)','Completed':'var(--s-completed)','Pipeline':'var(--s-pipeline)'};
+const RCOL={Green:'var(--good)',Amber:'var(--warning)',Red:'var(--critical)'};
+const PHASES=['1. Schematic Design (SD)','2. Detailed Design (DD)','3. Contract Documents (CD)','4. Tender','5. Construction','6. Defects Liability Period (DLP)'];
+const n=v=>{const x=parseFloat(v);return isNaN(x)?0:x};
+const d=v=>v?new Date(v+'T00:00:00'):null;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money=v=>{v=+v;const a=Math.abs(v);return (v<0?'−':'')+(a>=1e6?'$'+(a/1e6).toFixed(2)+'m':a>=1e3?'$'+Math.round(a/1e3)+'k':'$'+Math.round(a))};
+const pct=v=>isFinite(v)?Math.round(v*100)+'%':'—';
+const fmtD=dt=>dt?dt.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}):'—';
+const days=(a,b)=>Math.round((b-a)/864e5);
+const tipAttr=(title,rows)=>`data-tip="${esc(JSON.stringify({t:title,r:rows}))}"`;
+const shortName=s=>s.length>30?s.slice(0,28)+'…':s;
+const ICON={
+  critical:'<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1 15 14H1z"/><path d="M8 6v3.5M8 11.3v.2" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  serious:'<svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4.5v4M8 11v.2" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  warning:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1.5" y="1.5" width="13" height="13" rx="3"/><path d="M5 8h6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>'
+};
+
+/* ================= model ================= */
+function model(){
+  const P=D.projects.map(p=>{
+    const budget=n(p.budget_aud), spend=n(p.budget_spend_to_date_aud??p.spend_to_date_aud), cont=n(p.contingency_aud), cspend=n(p.contingency_spend_to_date_aud);
+    return {...p,budget,spend,cont,cspend,complete:n(p.percent_complete)/100,
+      bPct:budget?spend/budget:NaN,cPct:cont?cspend/cont:NaN,
+      start:d(p.start_date),end:d(p.target_end_date),actualEnd:d(p.actual_end_date)};
+  });
+  const byId=Object.fromEntries(P.map(p=>[p.project_id,p]));
+  const ref=new Date(Math.max(...P.map(p=>+d(p.last_updated)||0)));
+  const R=D.raidd.map(r=>({...r,due:d(r.due_date),raised:d(r.raised_date),open:r.status!=='Closed'}));
+  const A=D.resourcing.map(a=>({...a,fte:n(a.fte_allocation),s:d(a.allocation_start),e:d(a.allocation_end)}));
+  const cur=A.filter(a=>a.s<=ref&&a.e>=ref&&!/ended/i.test(a.allocation_status));
+  return {P,byId,ref,R,A,cur};
+}
+
+/* ================= render ================= */
+function render(){
+  const M=model();const {P,byId,ref,R,cur}=M;
+  document.getElementById('repDate').textContent='Reporting date · '+fmtD(ref);
+  document.getElementById('srcInfo').textContent=`${P.length} projects · ${R.length} RAIDD · ${M.A.length} allocations`;
+
+  /* ---- KPIs ---- */
+  const cnt=s=>P.filter(p=>p.status===s).length;
+  const live=P.filter(p=>p.status==='In-flight'||p.status==='Standby');
+  const fl=P.filter(p=>p.status==='In-flight');
+  const sum=(a,k)=>a.reduce((t,x)=>t+x[k],0);
+  const openR=R.filter(r=>r.open), openHigh=openR.filter(r=>/high|extreme/i.test(r.severity));
+  const flB=sum(fl,'budget'),flS=sum(fl,'spend'),lC=sum(live,'cont'),lCS=sum(live,'cspend');
+  const people={};cur.forEach(a=>{people[a.person_name]=(people[a.person_name]||0)+a.fte});
+  const over=Object.entries(people).filter(([,v])=>v>1.0001);
+  const reds=live.filter(p=>p.rag_status==='Red').length;
+  const sched=p=>{if(!p.start||!p.end)return null;const el=Math.min(1,Math.max(0,(ref-p.start)/(p.end-p.start)));const gap=el-p.complete;return {el,gap,rag:gap<=0.10?'Green':gap<=0.20?'Amber':'Red'}};
+  fl.forEach(p=>p.sched=sched(p));
+  const flS2=fl.filter(p=>p.sched);
+  const onTime=flS2.filter(p=>p.sched.rag==='Green');
+  const roster=[...new Set(M.A.map(a=>a.person_name))].map(nm=>({nm,role:M.A.find(a=>a.person_name===nm).role,t:people[nm]||0}));
+  const capT=roster.length, allocT=roster.reduce((s,r)=>s+r.t,0);
+  const roleCap=r=>{const x=roster.filter(y=>y.role===r);return {n:x.length,a:x.reduce((s,y)=>s+y.t,0)}};
+  const meterCol=v=>v>1?'var(--critical)':'var(--ink-2)';
+  const k=[];
+  k.push(`<div class="card kpi span-4"><div class="label">Projects in portfolio</div><div class="value">${P.length}</div>
+    <div class="status-split">${STATUSES.map(s=>`<span style="flex:${cnt(s)};background:${SCOL[s]}" ${tipAttr(s,[['Projects',cnt(s)]])}></span>`).join('')}</div>
+    <div class="legend" style="margin-top:8px">${STATUSES.map(s=>`<span><i style="background:${SCOL[s]}"></i>${s} ${cnt(s)}</span>`).join('')}</div></div>`);
+  k.push(`<div class="card kpi span-4"><div class="label">In-flight projects on schedule</div><div class="value">${onTime.length} <span style="font-size:18px;color:var(--muted);font-weight:600">of ${flS2.length}</span></div>
+    <div class="note">Progress compared with the share of each project's timeline already elapsed</div>
+    <div class="status-split">${['Green','Amber','Red'].map(r=>{const x=flS2.filter(p=>p.sched.rag===r);return x.length?`<span style="flex:${x.length};background:${RCOL[r]}" ${tipAttr('Schedule: '+r,x.map(p=>[shortName(p.project_name),pct(p.complete)+' done, '+pct(p.sched.el)+' elapsed']))}></span>`:''}).join('')}</div>
+    <div class="legend" style="margin-top:8px">${['Green','Amber','Red'].map(r=>`<span><span class="rag ${r}">${r==='Green'?'On time':r==='Amber'?'Slipping':'Late'} ${flS2.filter(p=>p.sched.rag===r).length}</span></span>`).join('')}</div></div>`);
+  k.push(`<div class="card kpi span-4"><div class="label">PM capacity allocated</div><div class="value">${pct(allocT/capT)}</div>
+    <div class="note">${allocT.toFixed(1)} of ${capT.toFixed(1)} FTE allocated · ${over.length} PM${over.length===1?'':'s'} over 1.0 FTE</div>
+    ${['Clinical PM','IT PM'].map(r=>{const c=roleCap(r);return `<div class="rolebar" ${tipAttr(r,roster.filter(x=>x.role===r).map(x=>[x.nm,x.t.toFixed(1)+' FTE']))}><span>${r}</span><div class="meter"><span style="width:${Math.min(100,c.a/c.n*100)}%;background:${meterCol(c.a/c.n)}"></span></div><span>${c.a.toFixed(1)} / ${c.n.toFixed(1)}</span></div>`}).join('')}</div>`);
+  k.push(`<div class="card kpi span-4"><div class="label">In-flight budget spent</div><div class="value">${money(flS)}</div>
+    <div class="note">of ${money(flB)} budget · ${pct(flS/flB)} spent</div>
+    <div class="meter"><span style="width:${Math.min(100,flS/flB*100)}%;background:var(--s-inflight)"></span></div></div>`);
+  k.push(`<div class="card kpi span-4"><div class="label">Contingency drawn (in-flight + standby)</div><div class="value">${money(lCS)}</div>
+    <div class="note">of ${money(lC)} held · ${pct(lCS/lC)} drawn</div>
+    <div class="meter"><span style="width:${Math.min(100,lCS/lC*100)}%;background:var(--m-cont)"></span></div></div>`);
+  k.push(`<div class="card kpi span-4"><div class="label">Open high-severity RAIDD</div><div class="value">${openHigh.length}</div>
+    <div class="note">${openR.length} open items in total · ${reds} Red project${reds===1?'':'s'}</div>
+    <div class="meter"><span style="width:${openHigh.length/Math.max(1,openR.length)*100}%;background:var(--critical)"></span></div></div>`);
+  document.getElementById('kpis').innerHTML=k.join('');
+
+  /* ---- Key updates (exec summary; critical + serious only) ---- */
+  const U=[];
+  const lc=s=>s?s.charAt(0).toLowerCase()+s.slice(1):'';
+  const join=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+  const wordN=x=>String(x);
+  const overdue=R.filter(r=>r.open&&r.due&&r.due<ref);
+  const redP=live.filter(p=>p.rag_status==='Red');
+  if(redP.length)U.push({sev:'critical',h:`<b>${wordN(redP.length).replace(/^./,c=>c.toUpperCase())} of ${live.length} active projects ${redP.length===1?'is':'are'} rated Red.</b> ${join(redP.map(p=>`${esc(p.project_name)} (${esc(lc(p.status_reason.replace(/^On hold - /i,'on hold, ')))})`))}. ${redP.length===1?'It needs':'Each needs'} a recovery plan or an escalation decision.`});
+  const overC=P.filter(p=>p.status!=='Completed'&&p.cont&&p.cspend>p.cont);
+  if(overC.length)U.push({sev:'critical',h:overC.length===1?`<b>${esc(overC[0].project_name)} has exceeded its approved contingency</b>, with ${money(overC[0].cspend)} drawn against ${money(overC[0].cont)} (${pct(overC[0].cPct)}). A budget variation will be required.`:`<b>${overC.length} projects have exceeded their approved contingency</b> (${join(overC.map(p=>esc(p.project_name)))}). Budget variations will be required.`});
+  if(overdue.length)U.push({sev:'critical',h:`<b>${overdue.length} RAIDD item${overdue.length>1?'s are':' is'} past due</b> across ${new Set(overdue.map(r=>r.project_id)).size} project${new Set(overdue.map(r=>r.project_id)).size>1?'s':''} and need${overdue.length>1?'':'s'} an owner update.`});
+  const schedRed=flS2.filter(p=>p.sched.rag==='Red'), schedAmb=flS2.filter(p=>p.sched.rag==='Amber');
+  const late=fl.filter(p=>p.sched&&p.sched.rag!=='Green'&&p.end&&days(ref,p.end)<=90);
+  if(onTime.length<flS2.length){
+    let h=`<b>${wordN(onTime.length).replace(/^./,c=>c.toUpperCase())} of ${flS2.length} in-flight projects are on schedule.</b>`;
+    if(late.length)h+=` ${join(late.map(p=>esc(p.project_name)))} ${late.length>1?'are':'is'} due to finish within 90 days at ${join(late.map(p=>pct(p.complete)))} complete, so ${late.length>1?'delivery dates are':'its delivery date is'} at risk.`;
+    const worst=[...schedRed,...schedAmb].filter(p=>!late.includes(p)).sort((a,b)=>b.sched.gap-a.sched.gap).slice(0,2);
+    if(worst.length)h+=` ${join(worst.map(p=>esc(p.project_name)))} ${worst.length>1?'are':'is'} also tracking behind plan.`;
+    U.push({sev:schedRed.length||onTime.length<flS2.length/2?'serious':'serious',h});
+  }
+  const burnAhead=live.filter(p=>p.cont&&p.cPct<=1&&p.cPct>p.complete+0.05);
+  const budAhead=live.filter(p=>p.budget&&p.bPct>p.complete+0.05);
+  if(burnAhead.length||budAhead.length){
+    const parts=[];
+    if(burnAhead.length)parts.push(`contingency is being used faster than work is being delivered on ${join(burnAhead.map(p=>`${esc(p.project_name)} (${pct(p.cPct)} used, ${pct(p.complete)} complete)`))}`);
+    if(budAhead.length)parts.push(`budget spend is running ahead of progress on ${join(budAhead.map(p=>esc(p.project_name)))}`);
+    U.push({sev:'serious',h:`<b>Financial pressure is building:</b> ${parts.join('; ')}. Further draws are likely before completion.`});
+  }
+  if(over.length){
+    const spare=roster.filter(r=>r.t<=0.6).length;
+    U.push({sev:'serious',h:`<b>PM capacity is ${pct(allocT/capT)} allocated overall, but ${join(over.map(([nm])=>esc(nm)))} ${over.length>1?'are':'is'} over-committed</b> at ${join(over.map(([,v])=>v.toFixed(1)+' FTE'))}. ${spare?`${wordN(spare).replace(/^./,c=>c.toUpperCase())} PM${spare>1?'s have':' has'} spare capacity to rebalance work.`:'There is little spare capacity to rebalance.'}`});
+  }
+  const soonHigh=openHigh.filter(r=>r.due&&r.due>=ref&&days(ref,r.due)<=30).sort((a,b)=>a.due-b.due);
+  if(soonHigh.length){const f=soonHigh[0];U.push({sev:'serious',h:`<b>${wordN(soonHigh.length).replace(/^./,c=>c.toUpperCase())} high-severity RAIDD item${soonHigh.length>1?'s fall':' falls'} due in the next 30 days.</b> The most urgent, due ${fmtD(f.due).replace(/ \d{4}$/,'')}, is “${esc(f.title)}” on ${esc(byId[f.project_id]?.project_name||'')}.`});}
+  const order={critical:0,serious:1};U.sort((a,b)=>order[a.sev]-order[b.sev]);
+  document.getElementById('watch').innerHTML=U.length?U.map(u=>`<li class="${u.sev}"><span class="sev">${ICON[u.sev]}${u.sev}</span><div>${u.h}</div></li>`).join(''):'<li><span></span><div>No critical or serious matters this period.</div></li>';
+
+  /* ---- Phases ---- */
+  const phs=[...new Set(PHASES.concat(P.map(p=>p.phase)))].sort();
+  document.getElementById('phases').innerHTML=phs.map(ph=>{
+    const ps=P.filter(p=>p.phase===ph).sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status));
+    const m=ph.match(/^(\d+)\.\s*(.*)$/);
+    return `<div class="phase"><div class="phase-head"><div><div class="phase-num">PHASE ${m?m[1]:''}</div><div class="phase-name">${esc(m?m[2]:ph)}</div></div><div class="phase-count">${ps.length}</div></div>
+      ${ps.map(p=>`<span class="chip" style="border-left-color:${RCOL[p.rag_status]||'var(--axis)'}" ${tipAttr(p.project_name,[['Status',p.status],['RAG',p.rag_status],['Complete',pct(p.complete)],['Budget',money(p.budget)],['Sponsor',p.sponsor]])}><b>${esc(shortName(p.project_name))}</b><small>${p.status}</small></span>`).join('')}</div>`;
+  }).join('');
+  document.getElementById('statusLegend').innerHTML=`<span>Card edge:</span>${['Green','Amber','Red'].map(r=>`<span><span class="rag ${r}">${r}</span></span>`).join('')}`;
+
+  /* ---- RAG by status ---- */
+  document.getElementById('ragStack').innerHTML=STATUSES.map(s=>{
+    const ps=P.filter(p=>p.status===s);
+    const segs=['Green','Amber','Red'].map(r=>({r,c:ps.filter(p=>p.rag_status===r)})).filter(x=>x.c.length);
+    return `<div class="stackrow"><div class="lbl">${s}</div>
+      <div class="stack">${segs.map(x=>`<span class="${x.r}" style="flex:${x.c.length};background:${RCOL[x.r]}" ${tipAttr(`${s}: ${x.r}`,x.c.map(p=>[shortName(p.project_name),pct(p.complete)+" complete"]))}>${x.c.length}</span>`).join('')||'<span style="flex:1;background:var(--track)"></span>'}</div>
+      <div class="tot">${ps.length}</div></div>`;
+  }).join('')+`<div class="sub" style="margin:14px 0 0">Active projects (in-flight and standby): ${['Green','Amber','Red'].map(r=>`${live.filter(p=>p.rag_status===r).length} ${r}`).join(' · ')}</div>`;
+
+  /* ---- Burn dot plot ---- */
+  const maxP=Math.max(1.2,...live.map(p=>Math.max(p.bPct||0,p.cPct||0)))*1.0;
+  const xP=v=>Math.min(v,maxP)/maxP*100;
+  const tk=[0,.25,.5,.75,1].concat(maxP>1.1?[Math.floor(maxP*4)/4]:[]);
+  const burnRows=live.slice().sort((a,b)=>(b.cPct-b.complete)-(a.cPct-a.complete)).map(p=>{
+    const vals=[p.complete,p.bPct,p.cPct].filter(isFinite);const lo=Math.min(...vals),hi=Math.max(...vals);
+    const fl2=p.cPct>1?'<span class="flag crit">Over</span>':(p.cPct>p.complete+0.05||p.bPct>p.complete+0.05)?'<span class="flag ser">Ahead</span>':'';
+    return `<div class="drow" ${tipAttr(p.project_name,[['Status',p.status],['% complete',pct(p.complete)],['% budget spent',pct(p.bPct)],['% contingency used',pct(p.cPct)],['RAG',p.rag_status]])}>
+      <div class="name">${esc(shortName(p.project_name))}${fl2}<small>${p.status}</small></div>
+      <div class="track">${tk.map(t=>`<span class="gl ${t===1?'strong':''}" style="left:${xP(t)}%"></span>`).join('')}
+        <span class="span-line" style="left:${xP(lo)}%;width:${xP(hi)-xP(lo)}%"></span>
+        <span class="mk progress" style="left:${xP(p.complete)}%"></span>
+        ${isFinite(p.bPct)?`<span class="mk budget" style="left:${xP(p.bPct)}%"></span>`:''}
+        ${isFinite(p.cPct)?`<span class="mk cont" style="left:${xP(p.cPct)}%"></span>`:''}
+      </div><div class="val"><span class="rag ${p.rag_status}">${p.rag_status}</span></div></div>`}).join('');
+  document.getElementById('burn').innerHTML=`<div class="axisrow"><div></div><div class="ticks">${tk.map(t=>`<span style="left:${xP(t)}%">${Math.round(t*100)}%</span>`).join('')}</div><div></div></div>`+burnRows;
+
+  /* ---- Money bars ---- */
+  const mp=P.filter(p=>p.budget).sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status)||b.budget-a.budget);
+  const mx=Math.max(...mp.map(p=>Math.max(p.budget+p.cont,p.spend+p.cont)));
+  const xm=v=>v/mx*100;
+  document.getElementById('money').innerHTML=mp.map(p=>{
+    const overS=Math.max(0,p.spend-p.budget), sp=Math.min(p.spend,p.budget);
+    const cs=Math.min(p.cspend,p.cont), overCs=Math.max(0,p.cspend-p.cont);
+    return `<div class="drow" ${tipAttr(p.project_name,[['Status',p.status],['Budget',money(p.budget)],['Budget spend',money(p.spend)+' ('+pct(p.bPct)+')'],['Contingency',money(p.cont)],['Contingency spend',money(p.cspend)+' ('+pct(p.cPct)+')']])}>
+      <div class="name">${esc(shortName(p.project_name))}<small><span class="dot" style="background:${SCOL[p.status]}"></span> ${p.status}</small></div>
+      <div class="track">
+        <span class="bar budget" style="width:${xm(p.budget)}%"></span>
+        <span class="bar spend" style="width:${xm(sp)}%"></span>
+        ${overS?`<span class="bar over" style="left:${xm(p.budget)}%;width:${xm(overS)}%;border-radius:0 4px 4px 0"></span>`:''}
+        ${p.cont?`<span class="bar contbox" style="left:calc(${xm(p.budget+overS)}% + 2px);width:${xm(p.cont)}%"></span>`:''}
+        ${cs?`<span class="bar contspend" style="left:calc(${xm(p.budget+overS)}% + 2px);width:${xm(cs)}%"></span>`:''}
+        ${overCs?`<span class="bar over" style="left:calc(${xm(p.budget+overS+p.cont)}% + 2px);width:${xm(overCs)}%"></span>`:''}
+      </div><div class="val">${money(p.spend+p.cspend)}<br><span style="color:var(--muted)">of ${money(p.budget+p.cont)}</span></div></div>`}).join('');
+
+  /* ---- RAIDD ---- */
+  const types=['Risk','Assumption','Issue','Dependency','Decision'];
+  const due60=openR.filter(r=>r.due&&days(ref,r.due)<=60).sort((a,b)=>a.due-b.due);
+  document.getElementById('raiddMinis').innerHTML=[[openR.length,'Open items'],[openHigh.length,'High severity'],[openR.filter(r=>r.type==='Issue').length,'Open issues'],[overdue.length,'Overdue']].map(([v,l])=>`<div class="mini"><b>${v}</b><span>${l}</span></div>`).join('');
+  const rp=P.filter(p=>openR.some(r=>r.project_id===p.project_id)).sort((a,b)=>openR.filter(r=>r.project_id===b.project_id).length-openR.filter(r=>r.project_id===a.project_id).length);
+  const lvl=c=>c>=3?'c4':c===2?'c3':c===1?'c1':'';
+  let hh=`<div class="hd l">Project</div>${types.map(t=>`<div class="hd">${t}</div>`).join('')}<div class="hd">High</div>`;
+  rp.forEach(p=>{
+    const its=openR.filter(r=>r.project_id===p.project_id);
+    hh+=`<div class="pl"><span class="rag ${p.rag_status}" style="font-size:0"></span><span>${esc(p.project_name)}</span></div>`;
+    types.forEach(t=>{const x=its.filter(r=>r.type===t);hh+=`<div class="cell ${lvl(x.length)}" ${x.length?tipAttr(`${p.project_name} · ${t}`,x.map(r=>[r.severity,r.title])):''}>${x.length||'·'}</div>`});
+    const hi=its.filter(r=>/high|extreme/i.test(r.severity)).length;
+    hh+=`<div class="cell" style="${hi?'background:color-mix(in srgb,var(--critical) 16%,transparent);color:var(--critical)':''}">${hi||'·'}</div>`;
+  });
+  const heat=document.getElementById('heat');heat.style.gridTemplateColumns=`minmax(150px,1.6fr) repeat(${types.length+1},minmax(44px,1fr))`;heat.innerHTML=hh;
+  document.getElementById('due').innerHTML=due60.length?due60.map(r=>`<div class="li"><div class="due">${fmtD(r.due).replace(/ \d{4}$/,'')}<small>${days(ref,r.due)<0?Math.abs(days(ref,r.due))+'d overdue':'in '+days(ref,r.due)+'d'}</small></div>
+    <div><b>${esc(r.title)}</b><small>${esc(byId[r.project_id]?.project_name||'')} · ${esc(r.owner)}</small></div>
+    <div style="text-align:right"><span class="tag">${r.type}</span><br><span class="rag ${r.severity==='High'?'Red':r.severity==='Medium'?'Amber':'Green'}" style="margin-top:4px">${r.severity}</span></div></div>`).join(''):'<p class="sub">Nothing due.</p>';
+
+  /* ---- Capacity ---- */
+  const ppl=[...new Set(M.A.map(a=>a.person_name))].map(nm=>{const a=cur.filter(x=>x.person_name===nm);const any=M.A.find(x=>x.person_name===nm);return {nm,role:any.role,a,t:a.reduce((s,x)=>s+x.fte,0)}}).sort((a,b)=>a.role.localeCompare(b.role)||b.t-a.t);
+  const cmax=Math.max(1.4,...ppl.map(p=>p.t+0.1));const xc=v=>v/cmax*100;
+  const ctk=[0,.25,.5,.75,1,1.25].filter(t=>t<=cmax);
+  document.getElementById('cap').innerHTML=`<div class="axisrow"><div></div><div class="ticks">${ctk.map(t=>`<span style="left:${xc(t)}%">${t.toFixed(2).replace(/0$/,'')}</span>`).join('')}</div><div></div></div>`+ppl.map(pp=>{
+    let acc=0;const segs=pp.a.slice().sort((x,y)=>STATUSES.indexOf(byId[x.project_id]?.status)-STATUSES.indexOf(byId[y.project_id]?.status)).map(a=>{const st=byId[a.project_id]?.status||'In-flight';const s=`<span class="seg ${st}" style="left:calc(${xc(acc)}% + ${acc?1:0}px);width:calc(${xc(a.fte)}% - 2px);background:${SCOL[st]}" ${tipAttr(pp.nm,[['Project',shortName(byId[a.project_id]?.project_name||'')],['Status',st],['FTE',a.fte.toFixed(1)],['Hours/week',a.hours_per_week]])}>${a.fte>=0.2?esc(byId[a.project_id]?.project_name||''):''}</span>`;acc+=a.fte;return s}).join('');
+    return `<div class="drow"><div class="name">${esc(pp.nm)}<small>${pp.role}</small></div>
+      <div class="track">${ctk.map(t=>`<span class="gl" style="left:${xc(t)}%"></span>`).join('')}${segs}<span class="capline" style="left:${xc(1)}%"></span></div>
+      <div class="val" style="${pp.t>1.0001?'color:var(--critical);font-weight:700':''}">${pp.t.toFixed(1)} FTE${pp.t>1.0001?' ▲':''}</div></div>`}).join('');
+  document.getElementById('capLegend').innerHTML=['In-flight','Standby','Pipeline'].map(s=>`<span><i style="background:${SCOL[s]}"></i>${s}</span>`).join('')+'<span>Hover a segment for project details</span>';
+
+  const covP=P.filter(p=>p.status!=='Completed').sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status));
+  const who=(pid,role)=>{const a=M.A.filter(x=>x.project_id===pid&&x.role===role&&x.allocation_status!=='Ended');return a.length?a.map(x=>`${esc(x.person_name)} <span style="color:var(--muted)">${x.fte.toFixed(1)}${x.allocation_status==='Planned'?' · planned':''}</span>`).join('<br>'):'<span class="flag crit" style="margin:0">None</span>'};
+  document.getElementById('cover').innerHTML=`<thead><tr><th>Project</th><th>Clinical PM</th><th>IT PM</th></tr></thead><tbody>${covP.map(p=>`<tr><td><b>${esc(p.project_name)}</b><br><span class="st" style="color:var(--ink-2)"><span class="dot" style="background:${SCOL[p.status]}"></span>${p.status}</span></td><td>${who(p.project_id,'Clinical PM')}</td><td>${who(p.project_id,'IT PM')}</td></tr>`).join('')}</tbody>`;
+
+  /* ---- Gantt ---- */
+  const gp=P.filter(p=>p.start&&(p.end||p.actualEnd)).sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status)||a.start-b.start);
+  const g0=new Date(Math.min(...gp.map(p=>p.start)));g0.setDate(1);g0.setMonth(Math.floor(g0.getMonth()/3)*3);
+  const g1=new Date(Math.max(...gp.map(p=>p.actualEnd||p.end)));g1.setMonth(g1.getMonth()+3);g1.setDate(1);
+  const xg=dt=>(dt-g0)/(g1-g0)*100;
+  const qs=[];for(let q=new Date(g0);q<=g1;q.setMonth(q.getMonth()+3))qs.push(new Date(q));
+  const ql=q=>q.getMonth()===0?String(q.getFullYear()):q.toLocaleDateString('en-AU',{month:'short'});
+  document.getElementById('gantt').innerHTML=`<div class="axisrow"><div></div><div class="ticks">${qs.map(q=>`<span style="left:${xg(q)}%;${q.getMonth()===0?'font-weight:700;color:var(--ink-2)':''}">${ql(q)}</span>`).join('')}<span class="today-lbl" style="left:${xg(ref)}%">Today</span></div><div></div></div>`+gp.map(p=>{
+    const e=p.actualEnd||p.end;const late=p.actualEnd&&p.end&&p.actualEnd>p.end;
+    return `<div class="drow" ${tipAttr(p.project_name,[['Status',p.status],['Phase',p.phase],['Start',fmtD(p.start)],['Target end',fmtD(p.end)],['Actual end',fmtD(p.actualEnd)],['Complete',pct(p.complete)]])}>
+      <div class="name">${esc(shortName(p.project_name))}<small>${p.phase.replace(/^\d+\.\s*/,'').replace(/ \(.*\)/,'')}</small></div>
+      <div class="track">${qs.map(q=>`<span class="gl ${q.getMonth()===0?'strong':''}" style="left:${xg(q)}%"></span>`).join('')}
+        <span class="gbar" style="left:${xg(p.start)}%;width:${xg(e)-xg(p.start)}%;background:${SCOL[p.status]};${p.status==='Pipeline'?'opacity:.75;':''}"></span>
+        ${p.status==='In-flight'||p.status==='Standby'?`<span class="gbar" style="left:${xg(p.start)}%;width:${(xg(e)-xg(p.start))*p.complete}%;background:rgba(0,0,0,.22)"></span>`:''}
+        ${late?`<span style="position:absolute;left:${xg(p.end)}%;top:2px;bottom:2px;width:2px;background:var(--critical)"></span>`:''}
+        <span class="today" style="left:${xg(ref)}%"></span></div>
+      <div class="val"><span class="rag ${p.rag_status}">${p.rag_status}</span></div></div>`}).join('')+
+    `<div class="legend">${STATUSES.map(s=>`<span><i style="background:${SCOL[s]}"></i>${s}</span>`).join('')}<span><i style="background:rgba(0,0,0,.35)"></i>Darker fill shows % complete</span><span><i style="background:var(--critical);width:3px"></i>Original target, where it finished late</span></div>`;
+
+  renderTable(M);
+}
+
+/* ---- Register ---- */
+let FILTER='All',SORT={k:'project_id',dir:1};
+function renderTable(M){
+  M=M||model();const {P,R,A}=M;
+  const rows=P.filter(p=>FILTER==='All'||p.status===FILTER).map(p=>{
+    const or=R.filter(r=>r.project_id===p.project_id&&r.open);
+    const lead=role=>A.filter(a=>a.project_id===p.project_id&&a.role===role&&a.allocation_status!=='Ended').map(a=>a.person_name).join(', ')||A.filter(a=>a.project_id===p.project_id&&a.role===role).map(a=>a.person_name).join(', ')||'—';
+    return {...p,openR:or.length,highR:or.filter(r=>/high|extreme/i.test(r.severity)).length,cpm:lead('Clinical PM'),itpm:lead('IT PM'),fte:A.filter(a=>a.project_id===p.project_id&&a.allocation_status!=='Ended').reduce((t,a)=>t+a.fte,0)};
+  });
+  const cols=[['project_name','Project'],['status','Status'],['phase','Phase'],['rag_status','RAG'],['complete','Complete',1],['budget','Budget',1],['bPct','Budget spent',1],['cPct','Cont. used',1],['openR','Open RAIDD',1],['cpm','Clinical PM'],['itpm','IT PM'],['fte','FTE',1]];
+  rows.sort((a,b)=>{const x=a[SORT.k],y=b[SORT.k];return (typeof x==='number'?((isFinite(x)?x:-1)-(isFinite(y)?y:-1)):String(x).localeCompare(String(y)))*SORT.dir});
+  document.getElementById('filters').innerHTML=['All',...STATUSES].map(s=>`<button class="fbtn" aria-pressed="${FILTER===s}" data-f="${s}">${s}${s==='All'?'':' · '+P.filter(p=>p.status===s).length}</button>`).join('');
+  const over=v=>v>1?'color:var(--critical);font-weight:700':'';
+  document.getElementById('register').innerHTML=`<thead><tr>${cols.map(([k,l,num])=>`<th class="${num?'num':''}" data-k="${k}">${l}${SORT.k===k?(SORT.dir>0?' ↑':' ↓'):''}</th>`).join('')}</tr></thead><tbody>${rows.map(p=>`<tr>
+    <td><b>${esc(p.project_name)}</b><br><span style="color:var(--muted);font-size:11.5px">${esc(p.status_reason)}</span></td>
+    <td><span class="st"><span class="dot" style="background:${SCOL[p.status]}"></span>${p.status}</span></td>
+    <td style="white-space:nowrap">${esc(p.phase)}</td><td><span class="rag ${p.rag_status}">${p.rag_status}</span></td>
+    <td class="num">${pct(p.complete)}</td><td class="num">${money(p.budget)}</td><td class="num" style="${over(p.bPct)}">${pct(p.bPct)}</td><td class="num" style="${over(p.cPct)}">${pct(p.cPct)}</td>
+    <td class="num">${p.openR}${p.highR?` <span class="flag crit" style="margin-left:2px">${p.highR} high</span>`:''}</td>
+    <td>${esc(p.cpm)}</td><td>${esc(p.itpm)}</td><td class="num">${p.fte?p.fte.toFixed(1):'—'}</td></tr>`).join('')}</tbody>`;
+}
+document.addEventListener('click',e=>{
+  const f=e.target.closest('[data-f]');if(f){FILTER=f.dataset.f;renderTable();return}
+  const th=e.target.closest('#register th');if(th){const k=th.dataset.k;SORT=SORT.k===k?{k,dir:-SORT.dir}:{k,dir:1};renderTable()}
+});
+
+/* ---- tooltip ---- */
+const tip=document.getElementById('tip');
+document.addEventListener('mousemove',e=>{
+  const el=e.target.closest('[data-tip]');
+  if(!el){tip.style.opacity=0;return}
+  const o=JSON.parse(el.dataset.tip);
+  tip.innerHTML=`<b>${esc(o.t)}</b>${o.r.map(([a,b])=>`<div class="r"><span>${esc(a)}</span><span>${esc(b)}</span></div>`).join('')}`;
+  const w=tip.offsetWidth,h=tip.offsetHeight;
+  let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;
+  tip.style.left=x+'px';tip.style.top=y+'px';tip.style.opacity=1;
+});
+
+/* ---- file loading ---- */
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.opacity=0,3200)}
+document.getElementById('fileIn').addEventListener('change',async e=>{
+  const done=[];
+  for(const f of e.target.files){
+    const rows=parseCSV(await f.text());if(!rows.length)continue;const h=Object.keys(rows[0]);
+    const key=h.includes('raidd_id')?'raidd':h.includes('allocation_id')?'resourcing':h.includes('project_name')?'projects':null;
+    if(key){D[key]=rows;SRC[key]=f.name;done.push(`${f.name} → ${key}`)} else done.push(`${f.name}: not recognised`);
+  }
+  try{render();toast('Loaded '+done.join(', '))}catch(err){toast('Could not render: '+err.message);console.error(err)}
+  e.target.value='';
+});
+
+render();
+
+/* ================= Three.js header ================= */
+(function(){
+  const cv=document.getElementById('gl');
+  if(!window.THREE){return}
+  let r;try{r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true})}catch(e){return}
+  r.setPixelRatio(Math.min(devicePixelRatio,2));
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(42,1,0.1,200);
+  cam.position.set(0,7.5,15);cam.lookAt(2,0,-2);
+  const NX=150,NZ=56,SP=0.32;
+  const pos=new Float32Array(NX*NZ*3),col=new Float32Array(NX*NZ*3);
+  const c1=new THREE.Color('#2a78d6'),c2=new THREE.Color('#1baf7a'),c3=new THREE.Color('#9085e9');
+  let i=0;
+  for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){
+    pos[i*3]=(x-NX/2)*SP+4;pos[i*3+1]=0;pos[i*3+2]=(z-NZ/2)*SP;
+    const t=x/NX,c=t<.5?c1.clone().lerp(c2,t*2):c2.clone().lerp(c3,(t-.5)*2);
+    const fade=0.35+0.65*(z/NZ);col[i*3]=c.r*fade;col[i*3+1]=c.g*fade;col[i*3+2]=c.b*fade;i++;
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const m=new THREE.PointsMaterial({size:0.085,vertexColors:true,transparent:true,opacity:.95,depthWrite:false,blending:THREE.AdditiveBlending});
+  const pts=new THREE.Points(g,m);scene.add(pts);
+  // slow rotating wireframe ring for an abstract accent
+  const ring=new THREE.Mesh(new THREE.TorusKnotGeometry(2.2,0.5,180,12,2,3),new THREE.MeshBasicMaterial({color:'#86b6ef',wireframe:true,transparent:true,opacity:.12}));
+  ring.position.set(10,1.6,-7);ring.scale.setScalar(0.8);scene.add(ring);
+  function size(){const w=cv.clientWidth,h=cv.clientHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+  size();new ResizeObserver(size).observe(cv);
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const p=g.attributes.position.array;
+  function frame(t){
+    t*=0.001;let k=0;
+    for(let z=0;z<NZ;z++)for(let x=0;x<NX;x++){
+      const X=p[k*3],Z=p[k*3+2];
+      p[k*3+1]=Math.sin(X*0.45+t*0.9)*0.45+Math.cos(Z*0.6+t*0.7)*0.35+Math.sin((X+Z)*0.25-t*0.5)*0.4;k++;
+    }
+    g.attributes.position.needsUpdate=true;
+    ring.rotation.x=t*0.12;ring.rotation.y=t*0.18;
+    r.render(scene,cam);
+    if(!reduce)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
